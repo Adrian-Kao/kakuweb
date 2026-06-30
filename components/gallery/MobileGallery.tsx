@@ -1,0 +1,218 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  galleryCategories,
+  galleryPhotos,
+  gallerySeries,
+  type GalleryPhoto,
+} from "../../data/gallery";
+import MobileShell from "../mobile/MobileShell";
+import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
+
+const P5Sketch = dynamic(() => import("../P5Sketch"), {
+  ssr: false,
+});
+
+type MobileGalleryProps = {
+  forcedSeriesSlug?: string;
+};
+
+function scrollToSeries(slug: string) {
+  document.getElementById(`series-${slug}`)?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
+export default function MobileGallery({ forcedSeriesSlug }: MobileGalleryProps) {
+  const searchParams = useSearchParams();
+  const seriesSlug = forcedSeriesSlug ?? searchParams.get("series");
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+
+  const visibleSeries = useMemo(() => {
+    if (!activeCategoryId) {
+      return gallerySeries;
+    }
+
+    return gallerySeries.filter((series) => series.categoryId === activeCategoryId);
+  }, [activeCategoryId]);
+
+  const visiblePhotos = useMemo(() => {
+    if (activeCategoryId) {
+      const visibleSeriesIds = new Set(visibleSeries.map((series) => series.id));
+      return galleryPhotos.filter((photo) => visibleSeriesIds.has(photo.seriesId));
+    }
+
+    return galleryPhotos;
+  }, [activeCategoryId, visibleSeries]);
+
+  const selectedIndex = selectedPhotoId
+    ? visiblePhotos.findIndex((photo) => photo.id === selectedPhotoId)
+    : -1;
+  const selectedPhoto = selectedIndex >= 0 ? visiblePhotos[selectedIndex] : null;
+
+  const moveViewer = (step: number) => {
+    if (selectedIndex < 0 || visiblePhotos.length === 0) {
+      return;
+    }
+
+    const nextIndex =
+      (selectedIndex + step + visiblePhotos.length) % visiblePhotos.length;
+    setSelectedPhotoId(visiblePhotos[nextIndex].id);
+  };
+
+  useEffect(() => {
+    if (!seriesSlug) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => scrollToSeries(seriesSlug));
+
+    return () => cancelAnimationFrame(frame);
+  }, [seriesSlug]);
+
+  return (
+    <MobileShell>
+      <div className="relative min-h-screen bg-[#050505] px-6 py-8 text-[#f3eee6]">
+        <P5Sketch intensity="low" />
+
+        <div className="relative z-10">
+          <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
+            KAKU PHOTOGRAPHY
+          </p>
+          <h1 className="mt-5 text-5xl font-light uppercase tracking-[0.08em]">
+            Gallery
+          </h1>
+          <p className="mt-7 text-sm leading-7 text-[rgba(243,238,230,0.62)]">
+            A moving archive of light, shadow, and memory.
+          </p>
+
+          <div className="scrollbar-hidden sticky top-0 z-20 -mx-6 mt-10 flex gap-3 overflow-x-auto border-y border-white/10 bg-[#050505]/88 px-6 py-4 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setActiveCategoryId(null)}
+              className={[
+                "shrink-0 text-[0.68rem] uppercase tracking-[0.22em] transition",
+                activeCategoryId
+                  ? "text-[rgba(243,238,230,0.52)]"
+                  : "text-[#c9a46a]",
+              ].join(" ")}
+            >
+              All
+            </button>
+            {galleryCategories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setActiveCategoryId(category.id)}
+                className={[
+                  "shrink-0 text-[0.68rem] uppercase tracking-[0.22em] transition",
+                  activeCategoryId === category.id
+                    ? "text-[#c9a46a]"
+                    : "text-[rgba(243,238,230,0.52)]",
+                ].join(" ")}
+              >
+                {category.shortLabel}
+              </button>
+            ))}
+          </div>
+
+          <div className="scrollbar-hidden -mx-6 flex gap-3 overflow-x-auto px-6 py-5">
+            {visibleSeries.map((series, index) => (
+              <button
+                key={series.id}
+                type="button"
+                onClick={() => scrollToSeries(series.slug)}
+                className="shrink-0 border border-white/10 px-4 py-3 text-left text-[0.68rem] uppercase tracking-[0.2em] text-[rgba(243,238,230,0.62)] transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
+              >
+                {String(index + 1).padStart(2, "0")} \u2014 {series.title}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4 space-y-16">
+            {visibleSeries.map((series, index) => {
+              const photos = galleryPhotos.filter(
+                (photo) => photo.seriesId === series.id,
+              );
+
+              return (
+                <section
+                  key={series.id}
+                  id={`series-${series.slug}`}
+                  className="scroll-mt-28 border-t border-white/10 pt-8"
+                >
+                  <p className="text-xs uppercase tracking-[0.28em] text-[#c9a46a]">
+                    Series {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h2 className="mt-4 text-3xl font-light uppercase tracking-[0.08em]">
+                    {series.title}
+                  </h2>
+                  <p className="mt-4 text-sm leading-7 text-[rgba(243,238,230,0.6)]">
+                    {series.description}
+                  </p>
+
+                  <div className="mt-8 space-y-9">
+                    {photos.map((photo) => (
+                      <MobileGalleryPhoto
+                        key={photo.id}
+                        photo={photo}
+                        onSelect={setSelectedPhotoId}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        </div>
+
+        {selectedPhoto ? (
+          <PhotoViewerOverlay
+            photo={selectedPhoto}
+            onClose={() => setSelectedPhotoId(null)}
+            onNext={() => moveViewer(1)}
+            onPrevious={() => moveViewer(-1)}
+          />
+        ) : null}
+      </div>
+    </MobileShell>
+  );
+}
+
+function MobileGalleryPhoto({
+  photo,
+  onSelect,
+}: {
+  photo: GalleryPhoto;
+  onSelect: (photoId: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(photo.id)}
+      className="group block w-full text-left"
+    >
+      <div
+        className="relative overflow-hidden border border-white/10 bg-[#111] transition duration-500 group-hover:brightness-110"
+        style={{ aspectRatio: photo.aspectRatio }}
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${photo.imageUrl})` }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(243,238,230,0.14),rgba(243,238,230,0.02)_40%,rgba(0,0,0,0.5)),radial-gradient(circle_at_54%_32%,rgba(201,164,106,0.18),transparent_36%)]" />
+      </div>
+      <div className="mt-4 border-t border-white/10 pt-4">
+        <p className="text-xs uppercase tracking-[0.22em]">{photo.title}</p>
+        <p className="mt-2 text-[0.68rem] uppercase tracking-[0.18em] text-[rgba(243,238,230,0.48)]">
+          {photo.year} / {photo.categoryName} / {photo.seriesTitle}
+        </p>
+      </div>
+    </button>
+  );
+}
