@@ -7,14 +7,14 @@ const menuItems = [
   { href: "/", label: "01 \u2014 HOME" },
   { href: "/about", label: "02 \u2014 ABOUT ME" },
   { href: "/gallery", label: "03 \u2014 GALLERY" },
-  { href: "/contact", label: "04 \u2014 CONTACT" },
+  { href: "/contact", label: "04 \u2014 FILM" },
 ];
 
 const pageTitles: Record<string, string> = {
   "/": "KAKU PHOTOGRAPHY",
   "/about": "ABOUT ME",
   "/gallery": "GALLERY",
-  "/contact": "CONTACT",
+  "/contact": "FILM",
 };
 
 type MobileTopBarProps = {

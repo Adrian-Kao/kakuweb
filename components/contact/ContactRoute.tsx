@@ -11,5 +11,5 @@ export default function ContactRoute() {
     return null;
   }
 
-  return isMobile ? <MobileContact /> : <BlankSectionPage label="CONTACT" />;
+  return isMobile ? <MobileContact /> : <BlankSectionPage label="FILM" />;
 }
