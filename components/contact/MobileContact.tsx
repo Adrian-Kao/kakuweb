@@ -72,6 +72,19 @@ const filmFilters: FilmFilter[] = [
   },
 ];
 
+const photoWidth = 1080;
+const photoHeight = 1350;
+const framePaddingX = 96;
+const framePaddingY = 64;
+const outputWidth = photoWidth + framePaddingX * 2;
+const outputHeight = photoHeight + framePaddingY * 2;
+const outputPhotoFrame = {
+  x: framePaddingX,
+  y: framePaddingY,
+  width: photoWidth,
+  height: photoHeight,
+};
+
 const getTodayStamp = () => {
   const date = new Date();
   const yy = String(date.getFullYear()).slice(2);
@@ -282,16 +295,73 @@ const drawOutputFilmFrame = (
   context.strokeRect(frame.x + 2, frame.y + 2, frame.width - 4, frame.height - 4);
 };
 
+const loadImage = (src: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+
+const renderDevelopedPhoto = async (rawPhotoUrl: string, filter: FilmFilter) => {
+  const image = await loadImage(rawPhotoUrl);
+  const canvas = document.createElement("canvas");
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return "";
+  }
+
+  const photoCanvas = document.createElement("canvas");
+  photoCanvas.width = photoWidth;
+  photoCanvas.height = photoHeight;
+
+  const photoContext = photoCanvas.getContext("2d");
+  if (!photoContext) {
+    return "";
+  }
+
+  photoContext.filter = filter.css;
+  photoContext.drawImage(image, 0, 0, photoWidth, photoHeight);
+  photoContext.filter = "none";
+
+  drawFilmEffects(photoContext, photoWidth, photoHeight, filter);
+
+  drawOutputFilmFrame(context, outputWidth, outputHeight, outputPhotoFrame);
+  context.drawImage(
+    photoCanvas,
+    outputPhotoFrame.x,
+    outputPhotoFrame.y,
+    outputPhotoFrame.width,
+    outputPhotoFrame.height,
+  );
+  context.strokeStyle = "rgba(0,0,0,0.5)";
+  context.lineWidth = 4;
+  context.strokeRect(
+    outputPhotoFrame.x + 2,
+    outputPhotoFrame.y + 2,
+    outputPhotoFrame.width - 4,
+    outputPhotoFrame.height - 4,
+  );
+
+  return canvas.toDataURL("image/jpeg", 0.92);
+};
+
 export default function MobileContact() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const renderVersionRef = useRef(0);
 
   const [selectedFilter, setSelectedFilter] = useState<FilmFilter>(
     filmFilters[0],
   );
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isDeveloping, setIsDeveloping] = useState(false);
+  const [rawPhotoUrl, setRawPhotoUrl] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState("");
 
@@ -328,31 +398,11 @@ export default function MobileContact() {
 
     setIsDeveloping(true);
 
-    const photoWidth = 1080;
-    const photoHeight = 1350;
-    const framePaddingX = 96;
-    const framePaddingY = 64;
-    const width = photoWidth + framePaddingX * 2;
-    const height = photoHeight + framePaddingY * 2;
-    const photoFrame = {
-      x: framePaddingX,
-      y: framePaddingY,
-      width: photoWidth,
-      height: photoHeight,
-    };
-
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = photoWidth;
+    canvas.height = photoHeight;
 
     const context = canvas.getContext("2d");
     if (!context) return;
-
-    const photoCanvas = document.createElement("canvas");
-    photoCanvas.width = photoWidth;
-    photoCanvas.height = photoHeight;
-
-    const photoContext = photoCanvas.getContext("2d");
-    if (!photoContext) return;
 
     const videoRatio = video.videoWidth / video.videoHeight;
     const canvasRatio = photoWidth / photoHeight;
@@ -372,38 +422,46 @@ export default function MobileContact() {
       offsetY = (photoHeight - drawHeight) / 2;
     }
 
-    photoContext.filter = selectedFilter.css;
-    photoContext.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
-    photoContext.filter = "none";
-
-    drawFilmEffects(photoContext, photoWidth, photoHeight, selectedFilter);
-
-    drawOutputFilmFrame(context, width, height, photoFrame);
-    context.drawImage(
-      photoCanvas,
-      photoFrame.x,
-      photoFrame.y,
-      photoFrame.width,
-      photoFrame.height,
-    );
-    context.strokeStyle = "rgba(0,0,0,0.5)";
-    context.lineWidth = 4;
-    context.strokeRect(
-      photoFrame.x + 2,
-      photoFrame.y + 2,
-      photoFrame.width - 4,
-      photoFrame.height - 4,
-    );
-
-    setTimeout(() => {
-      setPhotoUrl(canvas.toDataURL("image/jpeg", 0.92));
-      setIsDeveloping(false);
-    }, 650);
+    context.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+    setRawPhotoUrl(canvas.toDataURL("image/jpeg", 0.96));
   };
 
   const retakePhoto = () => {
+    setRawPhotoUrl(null);
     setPhotoUrl(null);
   };
+
+  useEffect(() => {
+    if (!rawPhotoUrl) {
+      return;
+    }
+
+    let isCancelled = false;
+    const renderVersion = renderVersionRef.current + 1;
+    renderVersionRef.current = renderVersion;
+
+    renderDevelopedPhoto(rawPhotoUrl, selectedFilter)
+      .then((developedPhotoUrl) => {
+        if (
+          isCancelled ||
+          renderVersionRef.current !== renderVersion ||
+          !developedPhotoUrl
+        ) {
+          return;
+        }
+
+        setPhotoUrl(developedPhotoUrl);
+      })
+      .finally(() => {
+        if (!isCancelled && renderVersionRef.current === renderVersion) {
+          setIsDeveloping(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [rawPhotoUrl, selectedFilter]);
 
   useEffect(() => {
     return () => {
@@ -537,7 +595,13 @@ export default function MobileContact() {
                   <button
                     key={filter.id}
                     type="button"
-                    onClick={() => setSelectedFilter(filter)}
+                    onClick={() => {
+                      if (rawPhotoUrl) {
+                        setIsDeveloping(true);
+                      }
+
+                      setSelectedFilter(filter);
+                    }}
                     className={[
                       "flex flex-col items-center gap-2 rounded-full border px-2 py-3 transition",
                       isActive
