@@ -15,6 +15,7 @@ export default defineConfig({
     structureTool({
       structure: (S) =>
         S.list()
+          .id("content-management")
           .title("內容管理")
           .items([
             S.documentTypeListItem("category").title("分類管理"),
