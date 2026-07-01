@@ -18,6 +18,7 @@ export default defineConfig({
           .id("content-management")
           .title("內容管理")
           .items([
+            S.documentTypeListItem("homepageSlide").title("首頁輪播管理"),
             S.documentTypeListItem("category").title("分類管理"),
             S.documentTypeListItem("project").title("作品管理"),
           ]),

@@ -35,7 +35,10 @@ export async function generateMetadata({
   if (project) {
     const title = project.seoTitle ?? `${project.title} | KAKU Photography`;
     const description = project.seoDescription ?? project.description ?? "";
-    const image = optimizedImageUrl(project.ogImage ?? project.coverImage, {
+    const coverImage =
+      project.galleryImages?.find((item) => item?.isCover && item.image)?.image ??
+      project.galleryImages?.find((item) => item?.image)?.image;
+    const image = optimizedImageUrl(project.ogImage ?? coverImage, {
       width: 1200,
       height: 630,
     });

@@ -11,12 +11,18 @@ import { optimizedImageUrl } from "./image";
 import {
   categoriesQuery,
   categoryBySlugQuery,
-  homepageProjectsQuery,
+  homepageSlidesQuery,
   projectBySlugQuery,
   projectsQuery,
 } from "./queries";
 import { sanityFetch } from "./client";
-import type { HomeSlide, SanityCategory, SanityProject } from "./types";
+import type {
+  HomeSlide,
+  SanityCategory,
+  SanityHomepageSlide,
+  SanityProject,
+  SanityProjectImage,
+} from "./types";
 
 export type GalleryData = {
   categories: Category[];
@@ -56,6 +62,7 @@ function mapCategories(categories: SanityCategory[]): Category[] {
 
 function mapProjectToSeries(project: SanityProject, fallbackCategoryId: GalleryCategoryId): Series {
   const firstCategory = project.categories?.find((category) => category.isVisible !== false);
+  const cover = getProjectCoverImage(project);
 
   return {
     id: project._id,
@@ -63,8 +70,24 @@ function mapProjectToSeries(project: SanityProject, fallbackCategoryId: GalleryC
     title: project.title,
     description: project.description ?? "",
     categoryId: firstCategory ? toCategoryId(firstCategory.slug) : fallbackCategoryId,
-    coverPhotoId: `${project.slug}-cover`,
+    coverPhotoId: cover?._key ? `${project.slug}-${cover._key}` : `${project.slug}-cover`,
   };
+}
+
+function getProjectCoverImage(project: SanityProject) {
+  return (
+    project.galleryImages?.find((item) => item?.isCover && item.image) ??
+    project.galleryImages?.find((item) => item?.image) ??
+    null
+  );
+}
+
+function getProjectImages(project: SanityProject): SanityProjectImage[] {
+  const images = project.galleryImages?.filter((item) => item?.image) ?? [];
+  const cover = getProjectCoverImage(project);
+  const otherImages = images.filter((item) => item !== cover);
+
+  return cover ? [cover, ...otherImages] : images;
 }
 
 function mapProjectToPhotos(
@@ -73,11 +96,11 @@ function mapProjectToPhotos(
 ): GalleryPhoto[] {
   const firstCategory = project.categories?.find((category) => category.isVisible !== false);
   const categoryId = firstCategory ? toCategoryId(firstCategory.slug) : fallbackCategoryId;
-  const categoryName = firstCategory?.title ?? "Uncategorized";
-  const images = [project.coverImage, ...(project.galleryImages ?? [])].filter(Boolean);
+  const categoryName = firstCategory?.title ?? "未分類";
+  const images = getProjectImages(project);
 
-  return images.flatMap((image, index) => {
-    const imageUrl = optimizedImageUrl(image, {
+  return images.flatMap((item, index) => {
+    const imageUrl = optimizedImageUrl(item.image, {
       width: index === 0 ? 1400 : 1800,
     });
 
@@ -88,21 +111,21 @@ function mapProjectToPhotos(
     const number = index + 1;
 
     return {
-      id: index === 0 ? `${project.slug}-cover` : `${project.slug}-${number}`,
+      id: item._key ? `${project.slug}-${item._key}` : `${project.slug}-${number}`,
       title:
         index === 0
           ? project.title
-          : `${project.title} / Frame ${String(number).padStart(2, "0")}`,
+          : item.caption || `${project.title} / Frame ${String(number).padStart(2, "0")}`,
       year: project.shootingDate?.slice(0, 4) ?? "",
       imageUrl,
-      alt: project.title,
+      alt: item.alt || project.title,
       categoryId,
       categoryName,
       seriesId: project._id,
       seriesSlug: project.slug,
       seriesTitle: project.title,
-      featuredOnHome: Boolean(project.showOnHomepage),
-      homeOrder: project.homepageOrder ?? 0,
+      featuredOnHome: false,
+      homeOrder: 0,
       description: project.description ?? "",
       aspectRatio: "4/5",
       collaborator: project.location ?? "KAKU Photography",
@@ -145,28 +168,28 @@ export async function getGalleryData(): Promise<GalleryData> {
 }
 
 export async function getHomeSlides(): Promise<HomeSlide[]> {
-  const projects = await sanityFetch<SanityProject[]>({ query: homepageProjectsQuery });
+  const slides = await sanityFetch<SanityHomepageSlide[]>({ query: homepageSlidesQuery });
 
-  if (!projects || projects.length === 0) {
+  if (!slides || slides.length === 0) {
     return fallbackHomeSlides;
   }
 
-  const slides = projects.flatMap((project) => {
-    const imageUrl = optimizedImageUrl(project.coverImage, { width: 2200 });
+  const mappedSlides = slides.flatMap((slide) => {
+    const imageUrl = optimizedImageUrl(slide.image, { width: 2200 });
 
     if (!imageUrl) {
       return [];
     }
 
     return {
-      id: project._id,
+      id: slide._id,
       src: imageUrl,
-      title: project.title,
-      slug: project.slug,
+      title: slide.title,
+      slug: slide.linkedProject?.slug,
     };
   });
 
-  return slides.length > 0 ? slides : fallbackHomeSlides;
+  return mappedSlides.length > 0 ? mappedSlides : fallbackHomeSlides;
 }
 
 export async function getProjectBySlug(slug: string) {

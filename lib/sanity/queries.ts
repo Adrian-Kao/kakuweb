@@ -13,11 +13,10 @@ export const categoriesQuery = /* groq */ `
 `;
 
 export const projectsQuery = /* groq */ `
-  *[_type == "project" && defined(slug.current)] | order(featuredOrder asc, shootingDate desc, title asc) {
+  *[_type == "project" && defined(slug.current)] | order(shootingDate desc, title asc) {
     _id,
     title,
     "slug": slug.current,
-    coverImage,
     galleryImages,
     categories[]->{
       _id,
@@ -34,32 +33,24 @@ export const projectsQuery = /* groq */ `
     shootingDate,
     location,
     tags,
-    showOnHomepage,
-    homepageOrder,
-    isFeatured,
-    featuredOrder,
     seoTitle,
     seoDescription,
     ogImage
   }
 `;
 
-export const homepageProjectsQuery = /* groq */ `
-  *[_type == "project" && showOnHomepage == true && defined(slug.current)] | order(homepageOrder asc, shootingDate desc, title asc) {
+export const homepageSlidesQuery = /* groq */ `
+  *[_type == "homepageSlide" && isVisible == true] | order(order asc, title asc) {
     _id,
     title,
-    "slug": slug.current,
-    coverImage,
-    description,
-    shootingDate,
-    categories[]->{
+    image,
+    order,
+    isVisible,
+    linkedProject->{
       _id,
       title,
-      "slug": slug.current,
-      isVisible
-    },
-    showOnHomepage,
-    homepageOrder
+      "slug": slug.current
+    }
   }
 `;
 
@@ -68,7 +59,6 @@ export const projectBySlugQuery = /* groq */ `
     _id,
     title,
     "slug": slug.current,
-    coverImage,
     galleryImages,
     categories[]->{
       _id,
@@ -85,10 +75,6 @@ export const projectBySlugQuery = /* groq */ `
     shootingDate,
     location,
     tags,
-    showOnHomepage,
-    homepageOrder,
-    isFeatured,
-    featuredOrder,
     seoTitle,
     seoDescription,
     ogImage

@@ -1,4 +1,10 @@
-import { categoryType } from "./category";
-import { projectType } from "./project";
+import { categoryType } from "./categoryV2";
+import { homepageSlideType } from "./homepageSlide";
+import { projectImageType, projectType } from "./projectV2";
 
-export const schemaTypes = [categoryType, projectType];
+export const schemaTypes = [
+  categoryType,
+  projectImageType,
+  projectType,
+  homepageSlideType,
+];
