@@ -7,7 +7,6 @@ const navigationItems = [
   { href: "/", label: " \u2014 HOME" },
   { href: "/about", label: " \u2014 ABOUT ME" },
   { href: "/gallery", label: " \u2014 GALLERY" },
-  { href: "/contact", label: " \u2014 EASTER EGG ?" },
 ];
 
 type PortfolioNavigationProps = {

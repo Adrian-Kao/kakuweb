@@ -1,20 +1,24 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { useState } from "react";
 import PortfolioNavigation from "../PortfolioNavigation";
-import HomeFilmStrips from "./HomeFilmStrips";
-
-const P5Sketch = dynamic(() => import("../P5Sketch"), {
-  ssr: false,
-});
+import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
 export default function DesktopHome() {
-  return (
-    <div className="min-h-screen overflow-hidden bg-[#050505] text-[#f4f0e8]">
-      <P5Sketch />
+  const [isMenuHovered, setIsMenuHovered] = useState(false);
 
-      <main className="relative z-10 grid h-screen grid-cols-1 gap-10 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[38%_62%] lg:px-20 lg:py-0">
-        <section className="flex min-h-[42vh] flex-col justify-between py-8 lg:min-h-0 lg:py-14">
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-[#f4f0e8]">
+      <HomeSlideshowBackground dimmed={isMenuHovered} />
+
+      <main className="relative z-10 flex h-screen overflow-hidden px-7 py-8 sm:px-12 lg:px-20 lg:py-0">
+        <section
+          className="flex min-h-[42vh] flex-col justify-between py-8 lg:min-h-0 lg:py-14"
+          onMouseEnter={() => setIsMenuHovered(true)}
+          onMouseLeave={() => setIsMenuHovered(false)}
+          onFocus={() => setIsMenuHovered(true)}
+          onBlur={() => setIsMenuHovered(false)}
+        >
           <div className="max-w-md">
             <p className="mb-10 text-xs font-medium uppercase tracking-[0.42em] text-[#d8b16f]">
               KAKU PHOTOGRAPHY
@@ -33,8 +37,6 @@ export default function DesktopHome() {
 
           <PortfolioNavigation />
         </section>
-
-        <HomeFilmStrips />
       </main>
     </div>
   );

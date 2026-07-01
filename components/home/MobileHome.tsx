@@ -1,25 +1,13 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import { featuredHomePhotos, type GalleryPhoto } from "../../data/gallery";
-import { usePageTransition } from "../PageTransition";
 import MobileShell from "../mobile/MobileShell";
-import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
-import FilmStrip from "./FilmStrip";
-
-const P5Sketch = dynamic(() => import("../P5Sketch"), {
-  ssr: false,
-});
+import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
 export default function MobileHome() {
-  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
-  const { transitionTo } = usePageTransition();
-
   return (
     <MobileShell>
       <div className="relative min-h-screen overflow-hidden bg-[#050505] px-6 py-8 text-[#f3eee6]">
-        <P5Sketch intensity="low" />
+        <HomeSlideshowBackground />
 
         <section className="relative z-10">
           <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
@@ -32,32 +20,6 @@ export default function MobileHome() {
             Photographer 
           </p>
         </section>
-
-        <section className="relative z-10 mt-14">
-          <div className="mb-5 flex items-end justify-between border-b border-white/10 pb-3">
-            <p className="text-xs uppercase tracking-[0.28em] text-[#c9a46a]">
-              Best of Films
-            </p>
-            
-          </div>
-          <FilmStrip
-            photos={featuredHomePhotos}
-            direction="up"
-            onSelect={setSelectedPhoto}
-            dimmed={Boolean(selectedPhoto)}
-            className="h-[74vh]"
-          />
-        </section>
-
-        {selectedPhoto ? (
-          <PhotoViewerOverlay
-            photo={selectedPhoto}
-            onClose={() => setSelectedPhoto(null)}
-            onGoToGallery={(photo) =>
-              transitionTo(`/gallery?series=${photo.seriesSlug}`)
-            }
-          />
-        ) : null}
       </div>
     </MobileShell>
   );
