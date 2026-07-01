@@ -1,15 +1,13 @@
 "use client";
 
-import {
-  galleryCategories,
-  gallerySeries,
-  type GalleryCategoryId,
-} from "../../data/gallery";
+import type { Category, GalleryCategoryId, Series } from "../../data/gallery";
 
 type GalleryFiltersProps = {
   activeCategory: GalleryCategoryId | "all";
   activeSeriesTitle?: string;
   activeSeriesSlug?: string;
+  categories: Category[];
+  series: Series[];
   onCategoryChange: (category: GalleryCategoryId | "all") => void;
   onSeriesSelect: (seriesSlug: string) => void;
 };
@@ -18,6 +16,8 @@ export default function GalleryFilters({
   activeCategory,
   activeSeriesTitle,
   activeSeriesSlug,
+  categories,
+  series,
   onCategoryChange,
   onSeriesSelect,
 }: GalleryFiltersProps) {
@@ -54,7 +54,7 @@ export default function GalleryFilters({
         >
           00 \u2014 All Work
         </button>
-        {galleryCategories.map((category) => {
+        {categories.map((category) => {
           const isActive = activeCategory === category.id;
 
           return (
@@ -84,15 +84,15 @@ export default function GalleryFilters({
           aria-label="Gallery series"
           className="scrollbar-hidden flex max-h-[18vh] flex-col gap-2 overflow-y-auto pr-2"
         >
-          {gallerySeries.map((series, index) => {
-            const isActive = activeSeriesSlug === series.slug;
+          {series.map((item, index) => {
+            const isActive = activeSeriesSlug === item.slug;
 
             return (
               <button
-                key={series.id}
+                key={item.id}
                 type="button"
                 aria-pressed={isActive}
-                onClick={() => onSeriesSelect(series.slug)}
+                onClick={() => onSeriesSelect(item.slug)}
                 className={[
                   "border-b py-2 text-left text-[0.68rem] uppercase tracking-[0.2em] transition duration-300",
                   isActive
@@ -100,7 +100,7 @@ export default function GalleryFilters({
                     : "border-white/10 text-[rgba(243,238,230,0.45)] hover:text-[#f3eee6]",
                 ].join(" ")}
               >
-                {String(index + 1).padStart(2, "0")} \u2014 {series.title}
+                {String(index + 1).padStart(2, "0")} \u2014 {item.title}
               </button>
             );
           })}

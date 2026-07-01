@@ -4,12 +4,11 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
-  getSeriesCoverPhoto,
-  galleryCategories,
-  galleryPhotos,
-  gallerySeries,
   type GalleryCategoryId,
+  type GalleryPhoto,
+  type Series,
 } from "../../data/gallery";
+import type { GalleryData } from "../../lib/sanity/data";
 import PortfolioNavigation from "../PortfolioNavigation";
 import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
 import GalleryFilters from "./GalleryFilters";
@@ -20,43 +19,59 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
 
 type GalleryGridProps = {
   forcedSeriesSlug?: string;
+  data: GalleryData;
 };
 
-export default function GalleryGrid({ forcedSeriesSlug }: GalleryGridProps) {
+function getSeriesCoverPhoto(series: Series, photos: GalleryPhoto[]) {
+  return (
+    photos.find((photo) => photo.id === series.coverPhotoId) ??
+    photos.find((photo) => photo.seriesId === series.id) ??
+    null
+  );
+}
+
+export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { categories, series, photos } = data;
   const querySeriesSlug = searchParams.get("series");
   const seriesSlug = forcedSeriesSlug ?? querySeriesSlug;
   const [activeCategory, setActiveCategory] =
     useState<GalleryCategoryId | "all">("all");
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
 
-  const activeSeries = gallerySeries.find((series) => series.slug === seriesSlug);
+  const activeSeries = series.find((item) => item.slug === seriesSlug);
+  const activeCategoryFromSlug = categories.find(
+    (category) => category.id === (`category-${seriesSlug}` as GalleryCategoryId),
+  );
   const isSeriesDetail = Boolean(activeSeries);
+  const effectiveCategory = activeSeries
+    ? "all"
+    : activeCategoryFromSlug?.id ?? activeCategory;
 
   const visibleSeries = useMemo(() => {
-    return gallerySeries.filter((series) => {
-      if (activeCategory === "all") {
+    return series.filter((item) => {
+      if (effectiveCategory === "all") {
         return true;
       }
 
-      return series.categoryId === activeCategory;
+      return item.categoryId === effectiveCategory;
     });
-  }, [activeCategory]);
+  }, [effectiveCategory, series]);
 
   const visiblePhotos = useMemo(() => {
-    return galleryPhotos.filter((photo) => {
+    return photos.filter((photo) => {
       if (activeSeries && photo.seriesSlug !== activeSeries.slug) {
         return false;
       }
 
-      if (!activeSeries && activeCategory !== "all" && photo.categoryId !== activeCategory) {
+      if (!activeSeries && effectiveCategory !== "all" && photo.categoryId !== effectiveCategory) {
         return false;
       }
 
       return true;
     });
-  }, [activeCategory, activeSeries]);
+  }, [effectiveCategory, activeSeries, photos]);
 
   const selectedIndex = selectedPhotoId
     ? visiblePhotos.findIndex((photo) => photo.id === selectedPhotoId)
@@ -80,15 +95,21 @@ export default function GalleryGrid({ forcedSeriesSlug }: GalleryGridProps) {
       <main className="relative z-10 grid h-screen grid-cols-1 gap-14 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[26%_74%] lg:px-20 lg:py-12">
         <div className="flex h-[calc(100vh-4rem)] flex-col justify-between lg:h-[calc(100vh-6rem)]">
           <GalleryFilters
-            activeCategory={activeCategory}
+            activeCategory={effectiveCategory}
             activeSeriesTitle={activeSeries?.title}
             activeSeriesSlug={activeSeries?.slug}
+            categories={categories}
+            series={series}
             onCategoryChange={(category) => {
               setActiveCategory(category);
               setSelectedPhotoId(null);
-              if (activeSeries) {
+
+              if (category === "all") {
                 router.push("/gallery");
+                return;
               }
+
+              router.push(`/gallery/${category.replace(/^category-/, "")}`);
             }}
             onSeriesSelect={(slug) => {
               setSelectedPhotoId(null);
@@ -165,8 +186,8 @@ export default function GalleryGrid({ forcedSeriesSlug }: GalleryGridProps) {
           ) : (
             <div className="columns-1 gap-12 md:columns-2 xl:columns-3">
               {visibleSeries.map((series, index) => {
-                const coverPhoto = getSeriesCoverPhoto(series);
-                const category = galleryCategories.find(
+                const coverPhoto = getSeriesCoverPhoto(series, photos);
+                const category = categories.find(
                   (item) => item.id === series.categoryId,
                 );
 

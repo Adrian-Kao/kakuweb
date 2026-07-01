@@ -30,7 +30,7 @@ const mobileAboutSections = [
   },
   {
     id: "contact-section",
-    label: "04 \u2014 FILM",
+    label: "04 \u2014 Contact",
     title: "For portraits, visual stories, and quiet collaborations.",
     body: "I work with artists, individuals, and small teams seeking images with a slower rhythm. Every project starts with a conversation about presence, intention, and light.",
   },

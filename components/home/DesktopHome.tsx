@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import type { HomeSlide } from "../../lib/sanity/types";
 import PortfolioNavigation from "../PortfolioNavigation";
 import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
-export default function DesktopHome() {
+type DesktopHomeProps = {
+  slides?: HomeSlide[];
+};
+
+export default function DesktopHome({ slides }: DesktopHomeProps) {
   const [isMenuHovered, setIsMenuHovered] = useState(false);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505] text-[#f4f0e8]">
-      <HomeSlideshowBackground dimmed={isMenuHovered} />
+      <HomeSlideshowBackground dimmed={isMenuHovered} slides={slides} />
 
       <main className="relative z-10 flex h-screen overflow-hidden px-7 py-8 sm:px-12 lg:px-20 lg:py-0">
         <section

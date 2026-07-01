@@ -3,12 +3,8 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  galleryCategories,
-  galleryPhotos,
-  gallerySeries,
-  type GalleryPhoto,
-} from "../../data/gallery";
+import type { GalleryPhoto } from "../../data/gallery";
+import type { GalleryData } from "../../lib/sanity/data";
 import MobileShell from "../mobile/MobileShell";
 import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
 
@@ -18,6 +14,7 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
 
 type MobileGalleryProps = {
   forcedSeriesSlug?: string;
+  data: GalleryData;
 };
 
 function scrollToSeries(slug: string) {
@@ -27,28 +24,33 @@ function scrollToSeries(slug: string) {
   });
 }
 
-export default function MobileGallery({ forcedSeriesSlug }: MobileGalleryProps) {
+export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryProps) {
   const searchParams = useSearchParams();
+  const { categories, series, photos } = data;
   const seriesSlug = forcedSeriesSlug ?? searchParams.get("series");
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const activeCategoryFromSlug = categories.find(
+    (category) => category.id === `category-${seriesSlug}`,
+  );
+  const effectiveCategoryId = activeCategoryFromSlug?.id ?? activeCategoryId;
 
   const visibleSeries = useMemo(() => {
-    if (!activeCategoryId) {
-      return gallerySeries;
+    if (!effectiveCategoryId) {
+      return series;
     }
 
-    return gallerySeries.filter((series) => series.categoryId === activeCategoryId);
-  }, [activeCategoryId]);
+    return series.filter((item) => item.categoryId === effectiveCategoryId);
+  }, [effectiveCategoryId, series]);
 
   const visiblePhotos = useMemo(() => {
-    if (activeCategoryId) {
+    if (effectiveCategoryId) {
       const visibleSeriesIds = new Set(visibleSeries.map((series) => series.id));
-      return galleryPhotos.filter((photo) => visibleSeriesIds.has(photo.seriesId));
+      return photos.filter((photo) => visibleSeriesIds.has(photo.seriesId));
     }
 
-    return galleryPhotos;
-  }, [activeCategoryId, visibleSeries]);
+    return photos;
+  }, [effectiveCategoryId, photos, visibleSeries]);
 
   const selectedIndex = selectedPhotoId
     ? visiblePhotos.findIndex((photo) => photo.id === selectedPhotoId)
@@ -70,10 +72,14 @@ export default function MobileGallery({ forcedSeriesSlug }: MobileGalleryProps) 
       return;
     }
 
+    if (activeCategoryFromSlug) {
+      return;
+    }
+
     const frame = requestAnimationFrame(() => scrollToSeries(seriesSlug));
 
     return () => cancelAnimationFrame(frame);
-  }, [seriesSlug]);
+  }, [activeCategoryFromSlug, seriesSlug]);
 
   return (
     <MobileShell>
@@ -97,21 +103,21 @@ export default function MobileGallery({ forcedSeriesSlug }: MobileGalleryProps) 
               onClick={() => setActiveCategoryId(null)}
               className={[
                 "shrink-0 text-[0.68rem] uppercase tracking-[0.22em] transition",
-                activeCategoryId
+                effectiveCategoryId
                   ? "text-[rgba(243,238,230,0.52)]"
                   : "text-[#c9a46a]",
               ].join(" ")}
             >
               All
             </button>
-            {galleryCategories.map((category) => (
+            {categories.map((category) => (
               <button
                 key={category.id}
                 type="button"
                 onClick={() => setActiveCategoryId(category.id)}
                 className={[
                   "shrink-0 text-[0.68rem] uppercase tracking-[0.22em] transition",
-                  activeCategoryId === category.id
+                  effectiveCategoryId === category.id
                     ? "text-[#c9a46a]"
                     : "text-[rgba(243,238,230,0.52)]",
                 ].join(" ")}
@@ -136,7 +142,7 @@ export default function MobileGallery({ forcedSeriesSlug }: MobileGalleryProps) 
 
           <div className="mt-4 space-y-16">
             {visibleSeries.map((series, index) => {
-              const photos = galleryPhotos.filter(
+              const seriesPhotos = photos.filter(
                 (photo) => photo.seriesId === series.id,
               );
 
@@ -157,7 +163,7 @@ export default function MobileGallery({ forcedSeriesSlug }: MobileGalleryProps) 
                   </p>
 
                   <div className="mt-8 space-y-9">
-                    {photos.map((photo) => (
+                    {seriesPhotos.map((photo) => (
                       <MobileGalleryPhoto
                         key={photo.id}
                         photo={photo}

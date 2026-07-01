@@ -1,15 +1,18 @@
-"use client";
+import type { Metadata } from "next";
+import HomeRoute from "../components/home/HomeRoute";
+import { getHomeSlides } from "../lib/sanity/data";
 
-import DesktopHome from "../components/home/DesktopHome";
-import MobileHome from "../components/home/MobileHome";
-import useIsMobile from "../hooks/useIsMobile";
+export const metadata: Metadata = {
+  title: "KAKU Photography",
+  description: "Light reveals. Shadow remembers.",
+  openGraph: {
+    title: "KAKU Photography",
+    description: "Light reveals. Shadow remembers.",
+  },
+};
 
-export default function Home() {
-  const { isMounted, isMobile } = useIsMobile();
+export default async function Home() {
+  const slides = await getHomeSlides();
 
-  if (!isMounted) {
-    return null;
-  }
-
-  return isMobile ? <MobileHome /> : <DesktopHome />;
+  return <HomeRoute slides={slides} />;
 }

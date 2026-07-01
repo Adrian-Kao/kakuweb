@@ -1,14 +1,16 @@
 "use client";
 
 import useIsMobile from "../../hooks/useIsMobile";
+import type { GalleryData } from "../../lib/sanity/data";
 import GalleryGrid from "./GalleryGrid";
 import MobileGallery from "./MobileGallery";
 
 type GalleryRouteProps = {
   forcedSeriesSlug?: string;
+  data: GalleryData;
 };
 
-export default function GalleryRoute({ forcedSeriesSlug }: GalleryRouteProps) {
+export default function GalleryRoute({ forcedSeriesSlug, data }: GalleryRouteProps) {
   const { isMounted, isMobile } = useIsMobile();
 
   if (!isMounted) {
@@ -16,8 +18,8 @@ export default function GalleryRoute({ forcedSeriesSlug }: GalleryRouteProps) {
   }
 
   return isMobile ? (
-    <MobileGallery forcedSeriesSlug={forcedSeriesSlug} />
+    <MobileGallery forcedSeriesSlug={forcedSeriesSlug} data={data} />
   ) : (
-    <GalleryGrid forcedSeriesSlug={forcedSeriesSlug} />
+    <GalleryGrid forcedSeriesSlug={forcedSeriesSlug} data={data} />
   );
 }

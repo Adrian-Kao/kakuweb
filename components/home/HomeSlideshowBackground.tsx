@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { HomeSlide } from "../../lib/sanity/types";
 
 const slideDuration = 5600;
-const slideshowImages = [
+const fallbackSlides: HomeSlide[] = [
   { id: "home-slide-1", src: "/1.jpg" },
   { id: "home-slide-2", src: "/2.jpg" },
   { id: "home-slide-3", src: "/3.jpg" },
@@ -13,33 +14,37 @@ const slideshowImages = [
 
 type HomeSlideshowBackgroundProps = {
   dimmed?: boolean;
+  slides?: HomeSlide[];
 };
 
 export default function HomeSlideshowBackground({
   dimmed = false,
-}: HomeSlideshowBackgroundProps) {
+  slides = fallbackSlides,
+  }: HomeSlideshowBackgroundProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const slideCount = slides.length;
+  const displayedActiveIndex = slideCount > 0 ? activeIndex % slideCount : 0;
 
   useEffect(() => {
-    if (slideshowImages.length <= 1) {
+    if (slideCount <= 1) {
       return;
     }
 
     const interval = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % slideshowImages.length);
+      setActiveIndex((current) => (current + 1) % slideCount);
     }, slideDuration);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [slideCount]);
 
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      {slideshowImages.map((slide, index) => (
+      {slides.map((slide, index) => (
         <div
           key={slide.id}
           className={[
             "absolute inset-0 bg-cover bg-center transition-opacity duration-[1600ms] ease-out",
-            index === activeIndex ? (dimmed ? "opacity-45" : "opacity-100") : "opacity-0",
+            index === displayedActiveIndex ? (dimmed ? "opacity-45" : "opacity-100") : "opacity-0",
           ].join(" ")}
           style={{ backgroundImage: `url(${slide.src})` }}
         />
