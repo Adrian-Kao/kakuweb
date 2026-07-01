@@ -7,11 +7,21 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 
 export default defineConfig({
   name: "kaku-portfolio",
-  title: "KAKU Photography",
+  title: "KAKU 攝影作品後台",
   projectId,
   dataset,
   basePath: "/studio",
-  plugins: [structureTool()],
+  plugins: [
+    structureTool({
+      structure: (S) =>
+        S.list()
+          .title("內容管理")
+          .items([
+            S.documentTypeListItem("category").title("分類管理"),
+            S.documentTypeListItem("project").title("作品管理"),
+          ]),
+    }),
+  ],
   schema: {
     types: schemaTypes,
   },
