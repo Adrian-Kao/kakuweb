@@ -90,6 +90,8 @@ const aspectRatios: GalleryPhoto["aspectRatio"][] = [
   "1/1",
 ];
 
+const mockImageUrls = ["/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg"];
+
 export const galleryPhotos: GalleryPhoto[] = gallerySeries.flatMap(
   (series, seriesIndex) => {
     const category = galleryCategories.find((item) => item.id === series.categoryId);
@@ -100,12 +102,13 @@ export const galleryPhotos: GalleryPhoto[] = gallerySeries.flatMap(
       const tone = (photoIndex + seriesIndex) % 2 === 0 ? "light" : "shadow";
       const aspectRatio = aspectRatios[(photoIndex + seriesIndex) % aspectRatios.length];
       const isLandscape = aspectRatio === "5/4";
+      const imageUrl = mockImageUrls[(photoIndex + seriesIndex) % mockImageUrls.length];
 
       return {
         id: `${series.slug}-${number}`,
         title: `${series.title} / Frame ${String(number).padStart(2, "0")}`,
         year: String(2020 + ((photoIndex + seriesIndex) % 5)),
-        imageUrl: "/image.jpg",
+        imageUrl,
         alt: `${series.title} frame ${number}`,
         categoryId: series.categoryId,
         categoryName,
@@ -118,7 +121,7 @@ export const galleryPhotos: GalleryPhoto[] = gallerySeries.flatMap(
         aspectRatio,
         collaborator: photoIndex % 2 === 0 ? "KAKU Studio" : "Available Light",
         category: series.categoryId,
-        src: "/image.jpg",
+        src: imageUrl,
         orientation: isLandscape ? "landscape" : "portrait",
         tone,
       };

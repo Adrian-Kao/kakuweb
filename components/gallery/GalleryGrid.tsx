@@ -188,7 +188,7 @@ export default function GalleryGrid({ forcedSeriesSlug }: GalleryGridProps) {
                       <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{
-                          backgroundImage: `url(${coverPhoto?.imageUrl ?? "/image.jpg"})`,
+                          backgroundImage: `url(${coverPhoto?.imageUrl ?? "/1.jpg"})`,
                         }}
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(243,238,230,0.12),rgba(243,238,230,0.02)_42%,rgba(0,0,0,0.56)),radial-gradient(circle_at_54%_32%,rgba(201,164,106,0.2),transparent_36%)]" />
