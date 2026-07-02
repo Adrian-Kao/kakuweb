@@ -11,7 +11,7 @@ import { optimizedImageUrl } from "./image";
 import {
   categoriesQuery,
   categoryBySlugQuery,
-  homepageSlidesQuery,
+  homepageCarouselQuery,
   projectBySlugQuery,
   projectsQuery,
 } from "./queries";
@@ -19,7 +19,7 @@ import { sanityFetch } from "./client";
 import type {
   HomeSlide,
   SanityCategory,
-  SanityHomepageSlide,
+  SanityHomepageCarousel,
   SanityProject,
   SanityProjectImage,
 } from "./types";
@@ -168,9 +168,12 @@ export async function getGalleryData(): Promise<GalleryData> {
 }
 
 export async function getHomeSlides(): Promise<HomeSlide[]> {
-  const slides = await sanityFetch<SanityHomepageSlide[]>({ query: homepageSlidesQuery });
+  const carousel = await sanityFetch<SanityHomepageCarousel | null>({
+    query: homepageCarouselQuery,
+  });
+  const slides = carousel?.carouselItems ?? [];
 
-  if (!slides || slides.length === 0) {
+  if (slides.length === 0) {
     return fallbackHomeSlides;
   }
 
@@ -182,10 +185,10 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
     }
 
     return {
-      id: slide._id,
+      id: slide._key ?? imageUrl,
       src: imageUrl,
-      title: slide.title,
-      slug: slide.linkedProject?.slug,
+      title: slide.caption ?? slide.project?.title,
+      slug: slide.project?.slug,
     };
   });
 

@@ -1,0 +1,18 @@
+[data-ui="Pane"] {
+  font-size: 16px;
+}
+
+[data-ui="Label"] {
+  font-size: 15px;
+}
+
+[data-ui="TextInput"],
+[data-ui="TextArea"] {
+  font-size: 16px;
+}
+
+[data-testid="field-galleryImages"] [data-ui="Card"] img,
+[data-testid="field-carouselItems"] [data-ui="Card"] img {
+  min-height: 140px;
+  object-fit: cover;
+}

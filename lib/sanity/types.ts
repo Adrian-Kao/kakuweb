@@ -46,13 +46,19 @@ export type SanityProjectImage = {
   caption?: string;
 };
 
-export type SanityHomepageSlide = {
+export type SanityHomepageCarousel = {
   _id: string;
-  title: string;
+  title?: string;
+  carouselItems?: SanityCarouselItem[];
+};
+
+export type SanityCarouselItem = {
+  _key?: string;
+  caption?: string;
   image?: SanityImageSource;
   order?: number;
   isVisible?: boolean;
-  linkedProject?: {
+  project?: {
     _id: string;
     title: string;
     slug: string;

@@ -39,17 +39,21 @@ export const projectsQuery = /* groq */ `
   }
 `;
 
-export const homepageSlidesQuery = /* groq */ `
-  *[_type == "homepageSlide" && isVisible == true] | order(order asc, title asc) {
+export const homepageCarouselQuery = /* groq */ `
+  *[_type == "homepageCarousel" && _id == "homepageCarousel"][0] {
     _id,
     title,
-    image,
-    order,
-    isVisible,
-    linkedProject->{
-      _id,
-      title,
-      "slug": slug.current
+    carouselItems[isVisible != false] | order(order asc) {
+      _key,
+      caption,
+      image,
+      order,
+      isVisible,
+      project->{
+        _id,
+        title,
+        "slug": slug.current
+      }
     }
   }
 `;
