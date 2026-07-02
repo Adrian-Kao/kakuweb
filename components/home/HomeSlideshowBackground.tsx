@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 import type { HomeSlide } from "../../lib/sanity/types";
 
 const slideDuration = 5600;
-const fallbackSlides: HomeSlide[] = [
-  { id: "home-slide-1", src: "/1.jpg" },
-  { id: "home-slide-2", src: "/2.jpg" },
-  { id: "home-slide-3", src: "/3.jpg" },
-  { id: "home-slide-4", src: "/4.jpg" },
-  { id: "home-slide-5", src: "/5.jpg" },
-];
 
 type HomeSlideshowBackgroundProps = {
   dimmed?: boolean;
@@ -19,7 +12,7 @@ type HomeSlideshowBackgroundProps = {
 
 export default function HomeSlideshowBackground({
   dimmed = false,
-  slides = fallbackSlides,
+  slides = [],
   }: HomeSlideshowBackgroundProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const slideCount = slides.length;

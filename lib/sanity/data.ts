@@ -30,14 +30,6 @@ export type GalleryData = {
   photos: GalleryPhoto[];
 };
 
-const fallbackHomeSlides: HomeSlide[] = [
-  { id: "home-slide-1", src: "/1.jpg" },
-  { id: "home-slide-2", src: "/2.jpg" },
-  { id: "home-slide-3", src: "/3.jpg" },
-  { id: "home-slide-4", src: "/4.jpg" },
-  { id: "home-slide-5", src: "/5.jpg" },
-];
-
 export const fallbackGalleryData: GalleryData = {
   categories: fallbackCategories,
   series: fallbackSeries,
@@ -67,7 +59,9 @@ function mapCategories(categories: SanityCategory[]): Category[] {
 }
 
 function mapProjectToSeries(project: SanityProject, fallbackCategoryId: GalleryCategoryId): Series {
-  const firstCategory = project.categories?.find((category) => category.isVisible !== false);
+  const firstCategory = project.categories?.find(
+    (category) => category && category.isVisible !== false,
+  );
   const cover = getProjectCoverImage(project);
 
   return {
@@ -119,7 +113,9 @@ function mapProjectToPhotos(
   project: SanityProject,
   fallbackCategoryId: GalleryCategoryId,
 ): GalleryPhoto[] {
-  const firstCategory = project.categories?.find((category) => category.isVisible !== false);
+  const firstCategory = project.categories?.find(
+    (category) => category && category.isVisible !== false,
+  );
   const categoryId = firstCategory ? toCategoryId(firstCategory.slug) : fallbackCategoryId;
   const categoryName = firstCategory?.title ?? "未分類";
   const images = getProjectImages(project);
@@ -198,10 +194,6 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
   });
   const slides = carousel?.carouselItems ?? [];
 
-  if (slides.length === 0) {
-    return fallbackHomeSlides;
-  }
-
   const mappedSlides = slides.flatMap((slide) => {
     const selectedImage = slide.project?.galleryImages?.find(
       (item) => item._key === slide.selectedImageKey,
@@ -220,7 +212,7 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
     };
   });
 
-  return mappedSlides.length > 0 ? mappedSlides : fallbackHomeSlides;
+  return mappedSlides;
 }
 
 export async function getProjectBySlug(slug: string) {
