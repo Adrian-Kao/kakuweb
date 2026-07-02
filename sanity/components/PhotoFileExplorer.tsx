@@ -163,7 +163,7 @@ export default function PhotoFileExplorer() {
   }, [projects, selectedCategoryId]);
 
   async function createCategory(parentId?: string) {
-    const label = parentId ? "請輸入小分類名稱" : "請輸入大分類名稱";
+    const label = parentId ? "請輸入作品集名稱" : "請輸入作品分類名稱";
     const title = window.prompt(label);
 
     if (!title?.trim()) {
@@ -347,14 +347,14 @@ export default function PhotoFileExplorer() {
 
         <div className="kaku-folder-actions">
           <button type="button" onClick={() => createCategory()}>
-            + 大分類
+            + 作品分類
           </button>
           <button
             type="button"
             disabled={!selectedCategoryId}
             onClick={() => selectedCategoryId && createCategory(selectedCategoryId)}
           >
-            + 小分類
+            + 作品集
           </button>
         </div>
 
