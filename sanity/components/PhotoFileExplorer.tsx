@@ -606,10 +606,24 @@ export default function PhotoFileExplorer() {
         .kaku-category {
           align-items: center;
           display: grid;
-          grid-template-columns: 1fr auto auto;
+          grid-template-columns: minmax(0, 1fr) auto;
           gap: 6px;
           margin: 3px 0;
-          padding: 10px 8px;
+          padding: 8px;
+        }
+
+        .kaku-category > button:first-child {
+          border: 0;
+          background: transparent;
+          color: inherit;
+          cursor: pointer;
+          font: inherit;
+          min-width: 0;
+          overflow: hidden;
+          padding: 8px 6px;
+          text-align: left;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .kaku-category.child {
@@ -621,11 +635,38 @@ export default function PhotoFileExplorer() {
           font-size: 12px;
         }
 
+        .kaku-category-actions {
+          display: flex;
+          gap: 8px;
+        }
+
         .kaku-category-actions button {
-          border: 0;
-          background: transparent;
-          color: rgba(244,240,232,0.54);
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 8px;
+          background: rgba(255,255,255,0.07);
+          color: rgba(244,240,232,0.82);
           cursor: pointer;
+          font-size: 14px;
+          min-width: 52px;
+          padding: 8px 10px;
+          transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+        }
+
+        .kaku-category-actions button:hover {
+          background: rgba(201,164,106,0.16);
+          border-color: rgba(201,164,106,0.55);
+          color: #f4f0e8;
+        }
+
+        .kaku-category-actions button.danger {
+          border-color: rgba(255,99,99,0.28);
+          color: #ff9b9b;
+        }
+
+        .kaku-category-actions button.danger:hover {
+          background: rgba(255,77,77,0.14);
+          border-color: rgba(255,99,99,0.64);
+          color: #ffd6d6;
         }
 
         .kaku-main {
@@ -821,13 +862,27 @@ function CategoryButton({
         {isChild ? "└ " : "▾ "}
         {category.title}
       </button>
-      <small>{category.isVisible === false ? "隱藏" : ""}</small>
       <span className="kaku-category-actions">
-        <button type="button" title="重新命名" onClick={() => onRename(category)}>
-          編
+        <button
+          type="button"
+          title="重新命名"
+          onClick={(event) => {
+            event.stopPropagation();
+            onRename(category);
+          }}
+        >
+          編輯
         </button>
-        <button type="button" title="刪除" onClick={() => onDelete(category)}>
-          刪
+        <button
+          type="button"
+          className="danger"
+          title="刪除"
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete(category);
+          }}
+        >
+          刪除
         </button>
       </span>
     </div>
