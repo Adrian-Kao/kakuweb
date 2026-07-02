@@ -6,7 +6,7 @@ export const categoriesQuery = /* groq */ `
     description,
     order,
     isVisible,
-    parent->{
+    parentCategory->{
       _id,
       title,
       "slug": slug.current
@@ -31,7 +31,7 @@ export const projectsQuery = /* groq */ `
       description,
       order,
       isVisible,
-      parent->{
+      parentCategory->{
         _id,
         title,
         "slug": slug.current
@@ -84,7 +84,7 @@ export const projectBySlugQuery = /* groq */ `
       description,
       order,
       isVisible,
-      parent->{
+      parentCategory->{
         _id,
         title,
         "slug": slug.current
@@ -111,7 +111,7 @@ export const categoryBySlugQuery = /* groq */ `
     description,
     order,
     isVisible,
-    parent->{
+    parentCategory->{
       _id,
       title,
       "slug": slug.current

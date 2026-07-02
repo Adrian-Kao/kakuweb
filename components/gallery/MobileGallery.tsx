@@ -24,6 +24,19 @@ function scrollToSeries(slug: string) {
   });
 }
 
+function getCategoryScope(categoryId: string | null, categories: GalleryData["categories"]) {
+  if (!categoryId) {
+    return null;
+  }
+
+  return new Set([
+    categoryId,
+    ...categories
+      .filter((category) => category.parentId === categoryId)
+      .map((category) => category.id),
+  ]);
+}
+
 export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryProps) {
   const searchParams = useSearchParams();
   const { categories, series, photos } = data;
@@ -36,12 +49,14 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
   const effectiveCategoryId = activeCategoryFromSlug?.id ?? activeCategoryId;
 
   const visibleSeries = useMemo(() => {
-    if (!effectiveCategoryId) {
+    const categoryScope = getCategoryScope(effectiveCategoryId, categories);
+
+    if (!categoryScope) {
       return series;
     }
 
-    return series.filter((item) => item.categoryId === effectiveCategoryId);
-  }, [effectiveCategoryId, series]);
+    return series.filter((item) => categoryScope.has(item.categoryId));
+  }, [categories, effectiveCategoryId, series]);
 
   const visiblePhotos = useMemo(() => {
     if (effectiveCategoryId) {

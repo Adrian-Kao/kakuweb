@@ -5,6 +5,7 @@ export type Category = {
   name: string;
   label: string;
   shortLabel: string;
+  parentId?: GalleryCategoryId;
 };
 
 export type Series = {

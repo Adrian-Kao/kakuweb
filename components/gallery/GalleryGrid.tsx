@@ -30,6 +30,22 @@ function getSeriesCoverPhoto(series: Series, photos: GalleryPhoto[]) {
   );
 }
 
+function getCategoryScope(
+  categoryId: GalleryCategoryId | "all",
+  categories: GalleryData["categories"],
+) {
+  if (categoryId === "all") {
+    return null;
+  }
+
+  return new Set([
+    categoryId,
+    ...categories
+      .filter((category) => category.parentId === categoryId)
+      .map((category) => category.id),
+  ]);
+}
+
 export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -50,28 +66,32 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
     : activeCategoryFromSlug?.id ?? activeCategory;
 
   const visibleSeries = useMemo(() => {
+    const categoryScope = getCategoryScope(effectiveCategory, categories);
+
     return series.filter((item) => {
-      if (effectiveCategory === "all") {
+      if (!categoryScope) {
         return true;
       }
 
-      return item.categoryId === effectiveCategory;
+      return categoryScope.has(item.categoryId);
     });
-  }, [effectiveCategory, series]);
+  }, [categories, effectiveCategory, series]);
 
   const visiblePhotos = useMemo(() => {
+    const categoryScope = getCategoryScope(effectiveCategory, categories);
+
     return photos.filter((photo) => {
       if (activeSeries && photo.seriesSlug !== activeSeries.slug) {
         return false;
       }
 
-      if (!activeSeries && effectiveCategory !== "all" && photo.categoryId !== effectiveCategory) {
+      if (!activeSeries && categoryScope && !categoryScope.has(photo.categoryId)) {
         return false;
       }
 
       return true;
     });
-  }, [effectiveCategory, activeSeries, photos]);
+  }, [categories, effectiveCategory, activeSeries, photos]);
 
   const selectedIndex = selectedPhotoId
     ? visiblePhotos.findIndex((photo) => photo.id === selectedPhotoId)

@@ -18,6 +18,11 @@ export type SanityCategory = {
   description?: string;
   order?: number;
   isVisible?: boolean;
+  parentCategory?: {
+    _id: string;
+    title: string;
+    slug: string;
+  };
   parent?: {
     _id: string;
     title: string;

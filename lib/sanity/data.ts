@@ -52,14 +52,18 @@ function mapCategories(categories: SanityCategory[]): Category[] {
   return categories
     .filter((category) => category.isVisible !== false)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((category, index) => ({
-      id: toCategoryId(category.slug),
-      name: category.parent ? `${category.parent.title} / ${category.title}` : category.title,
-      label: `${String(index + 1).padStart(2, "0")} — ${
-        category.parent ? `${category.parent.title} / ${category.title}` : category.title
-      }`,
-      shortLabel: category.parent ? `${category.parent.title} / ${category.title}` : category.title,
-    }));
+    .map((category, index) => {
+      const parent = category.parentCategory ?? category.parent;
+      const displayName = parent ? `${parent.title} / ${category.title}` : category.title;
+
+      return {
+        id: toCategoryId(category.slug),
+        name: displayName,
+        label: `${String(index + 1).padStart(2, "0")} — ${displayName}`,
+        shortLabel: displayName,
+        parentId: parent ? toCategoryId(parent.slug) : undefined,
+      };
+    });
 }
 
 function mapProjectToSeries(project: SanityProject, fallbackCategoryId: GalleryCategoryId): Series {
