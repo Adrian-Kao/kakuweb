@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import HomepageCarouselPreviewInput from "../components/HomepageCarouselPreviewInput";
 import ProjectImagePicker from "../components/ProjectImagePicker";
 
 export const carouselItemType = defineType({
@@ -84,6 +85,9 @@ export const homepageCarouselType = defineType({
       description: "新增輪播照片，選擇作品集，再從該作品集的照片中挑一張。",
       type: "array",
       of: [{ type: "carouselItem" }],
+      components: {
+        input: HomepageCarouselPreviewInput as never,
+      },
     }),
   ],
 });
