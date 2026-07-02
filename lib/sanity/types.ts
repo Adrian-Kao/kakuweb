@@ -18,6 +18,11 @@ export type SanityCategory = {
   description?: string;
   order?: number;
   isVisible?: boolean;
+  parent?: {
+    _id: string;
+    title: string;
+    slug: string;
+  };
   seoTitle?: string;
   seoDescription?: string;
   ogImage?: SanityImageSource;
@@ -27,6 +32,7 @@ export type SanityProject = {
   _id: string;
   title: string;
   slug: string;
+  coverImage?: SanityImageSource;
   galleryImages?: SanityProjectImage[];
   categories?: SanityCategory[];
   description?: string;
@@ -40,7 +46,14 @@ export type SanityProject = {
 
 export type SanityProjectImage = {
   _key?: string;
-  image?: SanityImageSource;
+  _type?: "image";
+  asset?: {
+    _ref?: string;
+    _id?: string;
+    url?: string;
+  };
+  crop?: Record<string, number>;
+  hotspot?: Record<string, number>;
   isCover?: boolean;
   alt?: string;
   caption?: string;
@@ -55,13 +68,14 @@ export type SanityHomepageCarousel = {
 export type SanityCarouselItem = {
   _key?: string;
   caption?: string;
-  image?: SanityImageSource;
+  selectedImageKey?: string;
   order?: number;
   isVisible?: boolean;
   project?: {
     _id: string;
     title: string;
     slug: string;
+    galleryImages?: SanityProjectImage[];
   };
 };
 

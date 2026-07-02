@@ -54,9 +54,11 @@ function mapCategories(categories: SanityCategory[]): Category[] {
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     .map((category, index) => ({
       id: toCategoryId(category.slug),
-      name: category.title,
-      label: `${String(index + 1).padStart(2, "0")} — ${category.title}`,
-      shortLabel: category.title,
+      name: category.parent ? `${category.parent.title} / ${category.title}` : category.title,
+      label: `${String(index + 1).padStart(2, "0")} — ${
+        category.parent ? `${category.parent.title} / ${category.title}` : category.title
+      }`,
+      shortLabel: category.parent ? `${category.parent.title} / ${category.title}` : category.title,
     }));
 }
 
@@ -74,18 +76,37 @@ function mapProjectToSeries(project: SanityProject, fallbackCategoryId: GalleryC
   };
 }
 
+function getCoverImageAsProjectImage(project: SanityProject): SanityProjectImage | null {
+  if (!project.coverImage || typeof project.coverImage !== "object") {
+    return null;
+  }
+
+  return {
+    ...project.coverImage,
+    _key: "cover",
+    isCover: true,
+  };
+}
+
 function getProjectCoverImage(project: SanityProject) {
   return (
-    project.galleryImages?.find((item) => item?.isCover && item.image) ??
-    project.galleryImages?.find((item) => item?.image) ??
+    getCoverImageAsProjectImage(project) ??
+    project.galleryImages?.find((item) => item?.isCover && item.asset) ??
+    project.galleryImages?.find((item) => item?.asset) ??
     null
   );
 }
 
 function getProjectImages(project: SanityProject): SanityProjectImage[] {
-  const images = project.galleryImages?.filter((item) => item?.image) ?? [];
-  const cover = getProjectCoverImage(project);
+  const images = project.galleryImages?.filter((item) => item?.asset) ?? [];
+  const cover = project.galleryImages?.find((item) => item?.isCover && item.asset) ?? null;
   const otherImages = images.filter((item) => item !== cover);
+
+  const coverImage = getCoverImageAsProjectImage(project);
+
+  if (coverImage) {
+    return [coverImage, ...images];
+  }
 
   return cover ? [cover, ...otherImages] : images;
 }
@@ -100,7 +121,7 @@ function mapProjectToPhotos(
   const images = getProjectImages(project);
 
   return images.flatMap((item, index) => {
-    const imageUrl = optimizedImageUrl(item.image, {
+    const imageUrl = optimizedImageUrl(item, {
       width: index === 0 ? 1400 : 1800,
     });
 
@@ -178,7 +199,10 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
   }
 
   const mappedSlides = slides.flatMap((slide) => {
-    const imageUrl = optimizedImageUrl(slide.image, { width: 2200 });
+    const selectedImage = slide.project?.galleryImages?.find(
+      (item) => item._key === slide.selectedImageKey,
+    );
+    const imageUrl = optimizedImageUrl(selectedImage, { width: 2200 });
 
     if (!imageUrl) {
       return [];

@@ -6,6 +6,11 @@ export const categoriesQuery = /* groq */ `
     description,
     order,
     isVisible,
+    parent->{
+      _id,
+      title,
+      "slug": slug.current
+    },
     seoTitle,
     seoDescription,
     ogImage
@@ -17,6 +22,7 @@ export const projectsQuery = /* groq */ `
     _id,
     title,
     "slug": slug.current,
+    coverImage,
     galleryImages,
     categories[]->{
       _id,
@@ -25,6 +31,11 @@ export const projectsQuery = /* groq */ `
       description,
       order,
       isVisible,
+      parent->{
+        _id,
+        title,
+        "slug": slug.current
+      },
       seoTitle,
       seoDescription,
       ogImage
@@ -46,13 +57,14 @@ export const homepageCarouselQuery = /* groq */ `
     carouselItems[isVisible != false] | order(order asc) {
       _key,
       caption,
-      image,
+      selectedImageKey,
       order,
       isVisible,
       project->{
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        galleryImages
       }
     }
   }
@@ -63,6 +75,7 @@ export const projectBySlugQuery = /* groq */ `
     _id,
     title,
     "slug": slug.current,
+    coverImage,
     galleryImages,
     categories[]->{
       _id,
@@ -71,6 +84,11 @@ export const projectBySlugQuery = /* groq */ `
       description,
       order,
       isVisible,
+      parent->{
+        _id,
+        title,
+        "slug": slug.current
+      },
       seoTitle,
       seoDescription,
       ogImage
@@ -93,6 +111,11 @@ export const categoryBySlugQuery = /* groq */ `
     description,
     order,
     isVisible,
+    parent->{
+      _id,
+      title,
+      "slug": slug.current
+    },
     seoTitle,
     seoDescription,
     ogImage
