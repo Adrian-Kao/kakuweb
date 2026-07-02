@@ -5,7 +5,7 @@ import { useClient } from "sanity";
 
 type CategoryDoc = {
   _id: string;
-  title: string;
+  title?: string | null;
   slug?: string;
   order?: number;
   isVisible?: boolean;
@@ -29,7 +29,7 @@ type ProjectImageDoc = {
 
 type ProjectDoc = {
   _id: string;
-  title: string;
+  title?: string | null;
   slug?: string;
   shootingDate?: string;
   coverImage?: ProjectImageDoc;
@@ -63,6 +63,14 @@ function imageUrl(image?: ProjectImageDoc) {
   return asset?.url ?? asset?._ref ?? asset?._id ?? "";
 }
 
+function categoryTitle(category?: CategoryDoc | null) {
+  return category?.title?.trim() || "未命名系列";
+}
+
+function projectTitle(project?: ProjectDoc | null) {
+  return project?.title?.trim() || "未命名作品集";
+}
+
 export default function PhotoFileExplorer() {
   const client = useClient({ apiVersion });
   const folderInputRef = useRef<HTMLInputElement | null>(null);
@@ -71,6 +79,7 @@ export default function PhotoFileExplorer() {
   const [projects, setProjects] = useState<ProjectDoc[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState("");
@@ -111,6 +120,9 @@ export default function PhotoFileExplorer() {
       setCategories(categoryDocs);
       setProjects(projectDocs);
       setSelectedCategoryId((current) => current ?? categoryDocs[0]?._id ?? null);
+      setExpandedCategoryIds((current) =>
+        current.length > 0 ? current : categoryDocs.slice(0, 4).map((category) => category._id),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -162,6 +174,30 @@ export default function PhotoFileExplorer() {
     );
   }, [projects, selectedCategoryId]);
 
+  const projectsByCategory = useMemo(() => {
+    const map = new Map<string, ProjectDoc[]>();
+
+    projects.forEach((project) => {
+      project.categories?.forEach((category) => {
+        if (!category?._id) {
+          return;
+        }
+
+        map.set(category._id, [...(map.get(category._id) ?? []), project]);
+      });
+    });
+
+    return map;
+  }, [projects]);
+
+  function toggleCategory(categoryId: string) {
+    setExpandedCategoryIds((current) =>
+      current.includes(categoryId)
+        ? current.filter((id) => id !== categoryId)
+        : [...current, categoryId],
+    );
+  }
+
   async function createCategory(parentId?: string) {
     const label = parentId ? "請輸入作品集名稱" : "請輸入作品分類名稱";
     const title = window.prompt(label);
@@ -188,7 +224,7 @@ export default function PhotoFileExplorer() {
   }
 
   async function renameCategory(category: CategoryDoc) {
-    const title = window.prompt("修改分類名稱", category.title);
+    const title = window.prompt("修改系列名稱", categoryTitle(category));
 
     if (!title?.trim()) {
       return;
@@ -200,6 +236,49 @@ export default function PhotoFileExplorer() {
   }
 
   async function deleteCategory(category: CategoryDoc) {
+    const childCategories = categories.filter(
+      (item) => item.parentCategory?._id === category._id,
+    );
+    const categoryIds = [category._id, ...childCategories.map((item) => item._id)];
+    const affectedProjects = projects.filter((project) =>
+      project.categories?.some((item) => item?._id && categoryIds.includes(item._id)),
+    );
+    const confirmed = window.confirm(
+      `確定刪除「${categoryTitle(category)}」？\n\n` +
+        `會一併刪除 ${childCategories.length} 個子分類，並從 ${affectedProjects.length} 個作品集中移除這個分類。\n` +
+        "作品集與照片不會被刪除。",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await Promise.all(
+      affectedProjects.map((project) => {
+        const categoriesToKeep =
+          project.categories
+            ?.filter((item) => item?._id && !categoryIds.includes(item._id))
+            .map((item) => ({
+              _type: "reference",
+              _key: makeKey(),
+              _ref: item._id,
+            })) ?? [];
+
+        return client.patch(project._id).set({ categories: categoriesToKeep }).commit();
+      }),
+    );
+
+    for (const child of childCategories) {
+      await client.delete(child._id);
+    }
+
+    await client.delete(category._id);
+    setSelectedCategoryId(null);
+    setSelectedProjectId(null);
+    setExpandedCategoryIds((current) => current.filter((id) => !categoryIds.includes(id)));
+    setMessage("系列已刪除，相關作品集已解除分類");
+    await loadData();
+    return;
     const ok = window.confirm(`確定刪除「${category.title}」？作品不會被刪除。`);
 
     if (!ok) {
@@ -352,35 +431,85 @@ export default function PhotoFileExplorer() {
           <button
             type="button"
             disabled={!selectedCategoryId}
-            onClick={() => selectedCategoryId && createCategory(selectedCategoryId)}
+            onClick={createProject}
           >
             + 作品集
           </button>
         </div>
 
         <div className="kaku-tree">
-          {categoryTree.map(({ parent, children }) => (
-            <div key={parent._id} className="kaku-tree-group">
-              <CategoryButton
-                category={parent}
-                isActive={selectedCategoryId === parent._id}
-                onSelect={setSelectedCategoryId}
-                onRename={renameCategory}
-                onDelete={deleteCategory}
-              />
-              {children.map((child) => (
-                <CategoryButton
-                  key={child._id}
-                  category={child}
-                  isActive={selectedCategoryId === child._id}
-                  isChild
+          {categoryTree.map(({ parent, children }) => {
+            const isParentExpanded = expandedCategoryIds.includes(parent._id);
+            const parentProjects = projectsByCategory.get(parent._id) ?? [];
+
+            return (
+              <div key={parent._id} className="kaku-tree-group">
+                <CategoryTreeButton
+                  category={parent}
+                  isActive={selectedCategoryId === parent._id}
+                  isExpanded={isParentExpanded}
+                  projectCount={parentProjects.length + children.length}
                   onSelect={setSelectedCategoryId}
+                  onToggle={toggleCategory}
                   onRename={renameCategory}
                   onDelete={deleteCategory}
                 />
-              ))}
-            </div>
-          ))}
+
+                {isParentExpanded ? (
+                  <div className="kaku-tree-children">
+                    {parentProjects.map((project) => (
+                      <ProjectTreeItem
+                        key={project._id}
+                        project={project}
+                        isActive={selectedProjectId === project._id}
+                        onSelect={(projectId) => {
+                          setSelectedCategoryId(parent._id);
+                          setSelectedProjectId(projectId);
+                        }}
+                      />
+                    ))}
+
+                    {children.map((child) => {
+                      const isChildExpanded = expandedCategoryIds.includes(child._id);
+                      const childProjects = projectsByCategory.get(child._id) ?? [];
+
+                      return (
+                        <div key={child._id}>
+                          <CategoryTreeButton
+                            category={child}
+                            isActive={selectedCategoryId === child._id}
+                            isExpanded={isChildExpanded}
+                            isChild
+                            projectCount={childProjects.length}
+                            onSelect={setSelectedCategoryId}
+                            onToggle={toggleCategory}
+                            onRename={renameCategory}
+                            onDelete={deleteCategory}
+                          />
+
+                          {isChildExpanded ? (
+                            <div className="kaku-tree-children nested">
+                              {childProjects.map((project) => (
+                                <ProjectTreeItem
+                                  key={project._id}
+                                  project={project}
+                                  isActive={selectedProjectId === project._id}
+                                  onSelect={(projectId) => {
+                                    setSelectedCategoryId(child._id);
+                                    setSelectedProjectId(projectId);
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       </aside>
 
@@ -603,6 +732,16 @@ export default function PhotoFileExplorer() {
           margin-bottom: 10px;
         }
 
+        .kaku-tree-children {
+          border-left: 1px solid rgba(255,255,255,0.13);
+          margin-left: 18px;
+          padding-left: 10px;
+        }
+
+        .kaku-tree-children.nested {
+          margin-left: 34px;
+        }
+
         .kaku-category {
           align-items: center;
           display: grid;
@@ -613,10 +752,14 @@ export default function PhotoFileExplorer() {
         }
 
         .kaku-category > button:first-child {
+          align-items: center;
           border: 0;
           background: transparent;
           color: inherit;
           cursor: pointer;
+          display: grid;
+          grid-template-columns: 18px 18px minmax(0, 1fr) auto;
+          gap: 6px;
           font: inherit;
           min-width: 0;
           overflow: hidden;
@@ -624,6 +767,55 @@ export default function PhotoFileExplorer() {
           text-align: left;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+
+        .kaku-tree-name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .kaku-tree-chevron,
+        .kaku-tree-icon {
+          color: rgba(244,240,232,0.72);
+          text-align: center;
+        }
+
+        .kaku-project-tree-item {
+          align-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 7px;
+          color: rgba(244,240,232,0.7);
+          cursor: pointer;
+          display: grid;
+          font: inherit;
+          grid-template-columns: 18px 14px minmax(0, 1fr) auto;
+          gap: 8px;
+          margin: 3px 0 3px 20px;
+          padding: 8px 8px;
+          text-align: left;
+          width: calc(100% - 20px);
+        }
+
+        .kaku-project-tree-item:hover,
+        .kaku-project-tree-item.active {
+          background: rgba(100,105,255,0.14);
+          color: #f4f0e8;
+        }
+
+        .kaku-project-dot {
+          border: 1px solid rgba(201,164,106,0.76);
+          border-radius: 3px;
+          display: block;
+          height: 12px;
+          width: 12px;
+        }
+
+        .kaku-project-tree-item small,
+        .kaku-category > button:first-child small {
+          color: rgba(244,240,232,0.42);
+          font-size: 12px;
         }
 
         .kaku-category.child {
@@ -841,6 +1033,7 @@ export default function PhotoFileExplorer() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function CategoryButton({
   category,
   isActive,
@@ -871,6 +1064,68 @@ function CategoryButton({
             onRename(category);
           }}
         >
+          編輯名稱
+        </button>
+        <button
+          type="button"
+          className="danger"
+          title="刪除"
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete(category);
+          }}
+        >
+          刪除
+        </button>
+      </span>
+    </div>
+  );
+}
+
+function CategoryTreeButton({
+  category,
+  isActive,
+  isExpanded,
+  isChild,
+  projectCount = 0,
+  onSelect,
+  onToggle,
+  onRename,
+  onDelete,
+}: {
+  category: CategoryDoc;
+  isActive: boolean;
+  isExpanded: boolean;
+  isChild?: boolean;
+  projectCount?: number;
+  onSelect: (id: string) => void;
+  onToggle: (id: string) => void;
+  onRename: (category: CategoryDoc) => void;
+  onDelete: (category: CategoryDoc) => void;
+}) {
+  return (
+    <div className={`kaku-category ${isActive ? "active" : ""} ${isChild ? "child" : ""}`}>
+      <button
+        type="button"
+        onClick={() => {
+          onSelect(category._id);
+          onToggle(category._id);
+        }}
+      >
+        <span className="kaku-tree-chevron">{isExpanded ? "⌄" : "›"}</span>
+        <span className="kaku-tree-icon">{isChild ? "□" : "▣"}</span>
+        <span className="kaku-tree-name">{categoryTitle(category)}</span>
+        {projectCount > 0 ? <small>{projectCount}</small> : null}
+      </button>
+      <span className="kaku-category-actions">
+        <button
+          type="button"
+          title="編輯名稱"
+          onClick={(event) => {
+            event.stopPropagation();
+            onRename(category);
+          }}
+        >
           編輯
         </button>
         <button
@@ -886,6 +1141,29 @@ function CategoryButton({
         </button>
       </span>
     </div>
+  );
+}
+
+function ProjectTreeItem({
+  project,
+  isActive,
+  onSelect,
+}: {
+  project: ProjectDoc;
+  isActive: boolean;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`kaku-project-tree-item ${isActive ? "active" : ""}`}
+      onClick={() => onSelect(project._id)}
+    >
+      <span className="kaku-tree-spacer" />
+      <span className="kaku-project-dot" />
+      <span className="kaku-tree-name">{projectTitle(project)}</span>
+      <small>{project.galleryImages?.length ?? 0}</small>
+    </button>
   );
 }
 

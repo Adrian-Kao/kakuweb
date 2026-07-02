@@ -20,14 +20,6 @@ export default defineConfig({
           .title("攝影作品管理")
           .items([
             S.listItem()
-              .id("photoFileExplorer")
-              .title("檔案總覽")
-              .child(
-                S.component(PhotoFileExplorer)
-                  .id("photoFileExplorerPane")
-                  .title("檔案總覽"),
-              ),
-            S.listItem()
               .id("projectExplorer")
               .title("作品管理")
               .child(
