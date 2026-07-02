@@ -329,6 +329,45 @@ export default function PhotoFileExplorer() {
     await loadData();
   }
 
+  async function deleteProject(project: ProjectDoc) {
+    const ok = window.confirm(
+      `確定刪除作品集「${projectTitle(project)}」？\n\n` +
+        `這個作品集內有 ${project.galleryImages?.length ?? 0} 張照片。刪除後，首頁輪播中引用這個作品集的項目也會一併移除。`,
+    );
+
+    if (!ok) {
+      return;
+    }
+
+    const carousel = await client.fetch<{
+      _id?: string;
+      carouselItems?: { _key?: string; project?: { _ref?: string } }[];
+    }>(
+      `*[_type == "homepageCarousel" && _id == "homepageCarousel"][0] {
+        _id,
+        carouselItems[]{ _key, project }
+      }`,
+    );
+    const remainingCarouselItems =
+      carousel?.carouselItems?.filter((item) => item.project?._ref !== project._id) ?? [];
+
+    if (carousel?._id && remainingCarouselItems.length !== carousel.carouselItems?.length) {
+      await client
+        .patch(carousel._id)
+        .set({ carouselItems: remainingCarouselItems })
+        .commit();
+    }
+
+    await client.delete(project._id);
+
+    if (selectedProjectId === project._id) {
+      setSelectedProjectId(null);
+    }
+
+    setMessage("作品集已刪除，首頁輪播引用已同步移除");
+    await loadData();
+  }
+
   async function uploadFiles(files: FileList | File[]) {
     if (!selectedProject || files.length === 0) {
       return;
@@ -547,6 +586,7 @@ export default function PhotoFileExplorer() {
                 isActive={selectedProjectId === project._id}
                 onSelect={setSelectedProjectId}
                 onMove={moveProject}
+                onDelete={deleteProject}
               />
             ))
           )}
@@ -964,6 +1004,25 @@ export default function PhotoFileExplorer() {
           width: 100%;
         }
 
+        .kaku-delete-project {
+          background: rgba(255,77,77,0.1);
+          border: 1px solid rgba(255,99,99,0.42);
+          border-radius: 8px;
+          color: #ffb1b1;
+          cursor: pointer;
+          font: inherit;
+          margin-top: 10px;
+          padding: 10px 12px;
+          transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+          width: 100%;
+        }
+
+        .kaku-delete-project:hover {
+          background: rgba(255,77,77,0.18);
+          border-color: rgba(255,99,99,0.72);
+          color: #ffe1e1;
+        }
+
         .kaku-photo-panel {
           border-top: 1px solid rgba(255,255,255,0.12);
           margin-top: 28px;
@@ -1173,12 +1232,14 @@ function ProjectCard({
   isActive,
   onSelect,
   onMove,
+  onDelete,
 }: {
   project: ProjectDoc;
   categories: CategoryDoc[];
   isActive: boolean;
   onSelect: (id: string) => void;
   onMove: (projectId: string, categoryId: string) => void;
+  onDelete: (project: ProjectDoc) => void;
 }) {
   const cover =
     project.coverImage ??
@@ -1187,10 +1248,16 @@ function ProjectCard({
   const categoryNames = project.categories?.map((category) => category.title).join(" / ");
 
   return (
-    <button
-      type="button"
+    <article
+      role="button"
+      tabIndex={0}
       className={`kaku-project-card ${isActive ? "active" : ""}`}
       onClick={() => onSelect(project._id)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          onSelect(project._id);
+        }
+      }}
     >
       <div className="kaku-cover">
         {imageUrl(cover) ? (
@@ -1221,7 +1288,17 @@ function ProjectCard({
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          className="kaku-delete-project"
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete(project);
+          }}
+        >
+          刪除作品集
+        </button>
       </div>
-    </button>
+    </article>
   );
 }
