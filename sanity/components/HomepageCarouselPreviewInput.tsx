@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { set, useClient } from "sanity";
 
@@ -242,9 +243,55 @@ export default function HomepageCarouselPreviewInput({
 
   return (
     <div style={shellStyle}>
+      <header style={headerStyle}>
+        <span style={eyebrowStyle}>Homepage Carousel</span>
+        <h2 style={titleStyle}>首頁輪播</h2>
+      </header>
+
+      <section style={carouselSectionStyle}>
+        {selectedItems.length > 0 ? (
+          <div style={carouselTrackStyle}>
+            {selectedItems.map(({ item, index, project, image }, visualIndex) => (
+              <article
+                key={item._key ?? `${project._id}-${image._key}`}
+                draggable
+                onDragStart={() => setDragIndex(index)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => {
+                  if (dragIndex !== null) {
+                    moveItem(dragIndex, index);
+                  }
+                  setDragIndex(null);
+                }}
+                onDragEnd={() => setDragIndex(null)}
+                style={carouselCardStyle}
+                title="拖曳調整順序"
+              >
+                <span style={carouselNumberStyle}>{String(visualIndex + 1).padStart(2, "0")}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
+                <div style={carouselMetaStyle}>
+                  <strong>{getProjectTitle(project)}</strong>
+                  <span>{getImageLabel(image, visualIndex)}</span>
+                </div>
+                <div style={carouselActionsStyle}>
+                  <button type="button" style={ghostButtonStyle} onClick={() => toggleVisible(index)}>
+                    {item.isVisible === false ? "顯示" : "隱藏"}
+                  </button>
+                  <button type="button" style={removeButtonStyle} onClick={() => removeItem(index)}>
+                    移除
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div style={emptyCarouselStyle}>從下方作品集中挑選照片加入首頁輪播。</div>
+        )}
+      </section>
+
       <section style={pickerStyle}>
         <aside style={treeStyle}>
-          <div style={sectionHeadingStyle}>作品集來源</div>
           <button
             type="button"
             style={{ ...treeButtonStyle, ...(selectedCategoryId ? {} : activeTreeStyle) }}
@@ -268,7 +315,7 @@ export default function HomepageCarouselPreviewInput({
                   onClick={() => toggleCategory(parent._id)}
                 >
                   <span>{isExpanded ? "▾" : "▸"}</span>
-                  <span>📁 {parent.title || "未命名系列"}</span>
+                  <span>{parent.title || "未命名系列"}</span>
                 </button>
 
                 {isExpanded ? (
@@ -283,7 +330,7 @@ export default function HomepageCarouselPreviewInput({
                         }}
                         onClick={() => setSelectedCategoryId(child._id)}
                       >
-                        <span>📂</span>
+                        <span>·</span>
                         <span>{child.title || "未命名作品集分類"}</span>
                       </button>
                     ))}
@@ -295,15 +342,17 @@ export default function HomepageCarouselPreviewInput({
         </aside>
 
         <div style={browserStyle}>
-          <label style={searchLabelStyle}>
-            搜尋作品集
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.currentTarget.value)}
-              placeholder="輸入作品集名稱..."
-              style={searchInputStyle}
-            />
-          </label>
+          <div style={browserTopStyle}>
+            <label style={searchLabelStyle}>
+              <span>搜尋作品集</span>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.currentTarget.value)}
+                placeholder="輸入作品集名稱..."
+                style={searchInputStyle}
+              />
+            </label>
+          </div>
 
           <div style={projectListStyle}>
             {filteredProjects.map((project) => (
@@ -359,278 +408,258 @@ export default function HomepageCarouselPreviewInput({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={getImageUrl(image)} alt="" style={imageStyle} />
                   ) : null}
-                  <span>{isSelected ? "已加入" : "加入輪播"}</span>
+                  <span>{isSelected ? "已加入輪播" : "加入輪播"}</span>
                 </button>
               );
             })}
           </div>
         </div>
       </section>
-
-      <section style={selectedSectionStyle}>
-        <div style={selectedHeadingStyle}>
-          <strong>首頁輪播順序</strong>
-          <span>拖曳下方照片調整播放順序</span>
-        </div>
-
-        {selectedItems.length > 0 ? (
-          <div style={selectedGridStyle}>
-            {selectedItems.map(({ item, index, project, image }, visualIndex) => (
-              <article
-                key={item._key ?? `${project._id}-${image._key}`}
-                draggable
-                onDragStart={() => setDragIndex(index)}
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={() => {
-                  if (dragIndex !== null) {
-                    moveItem(dragIndex, index);
-                  }
-                  setDragIndex(null);
-                }}
-                onDragEnd={() => setDragIndex(null)}
-                style={selectedCardStyle}
-              >
-                <span style={dragHandleStyle}>⋮⋮</span>
-                <span style={numberStyle}>{String(visualIndex + 1).padStart(2, "0")}</span>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getImageUrl(image)} alt="" style={selectedImagePreviewStyle} />
-                <div style={selectedInfoStyle}>
-                  <strong>{getProjectTitle(project)}</strong>
-                  <span>{getImageLabel(image, visualIndex)}</span>
-                </div>
-                <button type="button" style={plainButtonStyle} onClick={() => toggleVisible(index)}>
-                  {item.isVisible === false ? "顯示" : "隱藏"}
-                </button>
-                <button type="button" style={dangerButtonStyle} onClick={() => removeItem(index)}>
-                  移除
-                </button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div style={emptyStyle}>請從上方作品集中挑選照片加入首頁輪播。</div>
-        )}
-      </section>
     </div>
   );
 }
 
-const shellStyle = {
+const shellStyle: CSSProperties = {
   display: "grid",
-  gap: 24,
+  gap: 28,
+  paddingBottom: 12,
 };
 
-const pickerStyle = {
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 14,
+const headerStyle: CSSProperties = {
   display: "grid",
-  gap: 20,
-  gridTemplateColumns: "280px minmax(0, 1fr)",
-  padding: 18,
-};
-
-const treeStyle = {
-  borderRight: "1px solid rgba(255,255,255,0.1)",
-  paddingRight: 16,
-};
-
-const sectionHeadingStyle = {
-  color: "#c9a46a",
-  fontSize: 14,
-  letterSpacing: "0.16em",
-  marginBottom: 12,
-};
-
-const treeButtonStyle = {
-  alignItems: "center",
-  background: "transparent",
-  border: 0,
-  borderRadius: 8,
-  color: "rgba(244,240,232,0.72)",
-  cursor: "pointer",
-  display: "flex",
   gap: 8,
-  font: "inherit",
-  padding: "10px 12px",
-  textAlign: "left" as const,
+};
+
+const eyebrowStyle: CSSProperties = {
+  color: "rgba(244,240,232,0.54)",
+  fontSize: 13,
+  letterSpacing: "0.18em",
+  textTransform: "uppercase",
+};
+
+const titleStyle: CSSProperties = {
+  color: "#f4f0e8",
+  fontSize: 44,
+  fontWeight: 600,
+  lineHeight: 1,
+  margin: 0,
+};
+
+const carouselSectionStyle: CSSProperties = {
+  borderBottom: "1px solid rgba(255,255,255,0.12)",
+  paddingBottom: 26,
+};
+
+const carouselTrackStyle: CSSProperties = {
+  display: "grid",
+  gap: 18,
+  gridAutoColumns: "minmax(190px, 230px)",
+  gridAutoFlow: "column",
+  overflowX: "auto",
+  padding: "4px 2px 18px",
+  scrollbarColor: "rgba(201,164,106,0.72) rgba(255,255,255,0.08)",
+};
+
+const carouselCardStyle: CSSProperties = {
+  background: "rgba(255,255,255,0.045)",
+  border: "1px solid rgba(255,255,255,0.13)",
+  borderRadius: 18,
+  cursor: "grab",
+  overflow: "hidden",
+  position: "relative",
+};
+
+const carouselNumberStyle: CSSProperties = {
+  background: "rgba(5,5,5,0.62)",
+  borderRadius: 999,
+  color: "#c9a46a",
+  fontSize: 12,
+  left: 12,
+  letterSpacing: "0.12em",
+  padding: "5px 8px",
+  position: "absolute",
+  top: 12,
+  zIndex: 1,
+};
+
+const carouselImageStyle: CSSProperties = {
+  aspectRatio: "4 / 3",
+  background: "#111",
+  display: "block",
+  objectFit: "cover",
   width: "100%",
 };
 
-const activeTreeStyle = {
+const carouselMetaStyle: CSSProperties = {
+  display: "grid",
+  gap: 4,
+  padding: "12px 12px 0",
+};
+
+const carouselActionsStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  padding: 12,
+};
+
+const emptyCarouselStyle: CSSProperties = {
+  alignItems: "center",
+  border: "1px dashed rgba(255,255,255,0.16)",
+  borderRadius: 18,
+  color: "rgba(244,240,232,0.58)",
+  display: "flex",
+  minHeight: 160,
+  padding: 24,
+};
+
+const pickerStyle: CSSProperties = {
+  display: "grid",
+  gap: 30,
+  gridTemplateColumns: "260px minmax(0, 1fr)",
+};
+
+const treeStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: 18,
+  minHeight: 520,
+  padding: 16,
+};
+
+const treeButtonStyle: CSSProperties = {
+  alignItems: "center",
+  background: "transparent",
+  border: 0,
+  borderRadius: 10,
+  color: "rgba(244,240,232,0.72)",
+  cursor: "pointer",
+  display: "flex",
+  gap: 10,
+  font: "inherit",
+  padding: "11px 12px",
+  textAlign: "left",
+  width: "100%",
+};
+
+const activeTreeStyle: CSSProperties = {
   background: "rgba(98,102,255,0.18)",
   color: "#f4f0e8",
 };
 
-const childTreeStyle = {
+const childTreeStyle: CSSProperties = {
   borderLeft: "1px solid rgba(255,255,255,0.12)",
   marginLeft: 16,
   paddingLeft: 10,
 };
 
-const browserStyle = {
+const browserStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const searchLabelStyle = {
+const browserTopStyle: CSSProperties = {
+  alignItems: "end",
+  display: "flex",
+  justifyContent: "space-between",
+  marginBottom: 14,
+};
+
+const searchLabelStyle: CSSProperties = {
   color: "rgba(244,240,232,0.64)",
   display: "grid",
+  flex: "0 1 420px",
   gap: 8,
   fontSize: 14,
 };
 
-const searchInputStyle = {
+const searchInputStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.14)",
-  borderRadius: 8,
+  borderRadius: 10,
   color: "#f4f0e8",
   font: "inherit",
   padding: "12px 14px",
 };
 
-const projectListStyle = {
+const projectListStyle: CSSProperties = {
   display: "grid",
   gap: 10,
   gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-  marginTop: 14,
 };
 
-const projectButtonStyle = {
+const projectButtonStyle: CSSProperties = {
   alignItems: "center",
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 10,
+  borderRadius: 12,
   color: "#f4f0e8",
   cursor: "pointer",
   display: "grid",
   gap: 10,
   gridTemplateColumns: "54px minmax(0, 1fr) auto",
   padding: 8,
-  textAlign: "left" as const,
+  textAlign: "left",
 };
 
-const activeProjectStyle = {
+const activeProjectStyle: CSSProperties = {
   borderColor: "#c9a46a",
   boxShadow: "0 0 0 1px rgba(201,164,106,0.45)",
 };
 
-const projectThumbStyle = {
+const projectThumbStyle: CSSProperties = {
   background: "#171717",
-  borderRadius: 7,
+  borderRadius: 8,
   height: 44,
-  objectFit: "cover" as const,
+  objectFit: "cover",
   width: 54,
 };
 
-const imagePickerHeaderStyle = {
+const imagePickerHeaderStyle: CSSProperties = {
   alignItems: "center",
   display: "flex",
   justifyContent: "space-between",
-  marginTop: 22,
+  marginTop: 28,
 };
 
-const imageGridStyle = {
+const imageGridStyle: CSSProperties = {
   display: "grid",
-  gap: 12,
-  gridTemplateColumns: "repeat(auto-fill, minmax(132px, 1fr))",
-  marginTop: 12,
+  gap: 18,
+  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+  marginTop: 14,
 };
 
-const imageButtonStyle = {
+const imageButtonStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 10,
+  borderRadius: 18,
   color: "#f4f0e8",
   cursor: "pointer",
   overflow: "hidden",
   padding: 0,
+  textAlign: "left",
 };
 
-const selectedImageStyle = {
+const selectedImageStyle: CSSProperties = {
   borderColor: "#c9a46a",
 };
 
-const imageStyle = {
+const imageStyle: CSSProperties = {
   aspectRatio: "4 / 3",
   background: "#111",
   display: "block",
-  objectFit: "cover" as const,
+  objectFit: "cover",
   width: "100%",
 };
 
-const selectedSectionStyle = {
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 14,
-  padding: 18,
-};
-
-const selectedHeadingStyle = {
-  alignItems: "center",
-  display: "flex",
-  justifyContent: "space-between",
-  marginBottom: 14,
-};
-
-const selectedGridStyle = {
-  display: "grid",
-  gap: 12,
-};
-
-const selectedCardStyle = {
-  alignItems: "center",
-  background: "rgba(255,255,255,0.045)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 12,
-  cursor: "grab",
-  display: "grid",
-  gap: 12,
-  gridTemplateColumns: "28px 42px 96px minmax(0, 1fr) auto auto",
-  padding: 10,
-};
-
-const dragHandleStyle = {
-  color: "rgba(244,240,232,0.42)",
-  letterSpacing: -2,
-};
-
-const numberStyle = {
-  color: "#c9a46a",
-  fontSize: 13,
-  letterSpacing: "0.14em",
-};
-
-const selectedImagePreviewStyle = {
-  background: "#111",
-  borderRadius: 8,
-  height: 64,
-  objectFit: "cover" as const,
-  width: 96,
-};
-
-const selectedInfoStyle = {
-  display: "grid",
-  gap: 4,
-  minWidth: 0,
-};
-
-const plainButtonStyle = {
+const ghostButtonStyle: CSSProperties = {
   background: "rgba(255,255,255,0.06)",
   border: "1px solid rgba(255,255,255,0.14)",
   borderRadius: 8,
   color: "#f4f0e8",
   cursor: "pointer",
-  padding: "8px 12px",
+  padding: "7px 10px",
 };
 
-const dangerButtonStyle = {
-  ...plainButtonStyle,
+const removeButtonStyle: CSSProperties = {
+  ...ghostButtonStyle,
   border: "1px solid rgba(255,99,99,0.38)",
   color: "#ffb1b1",
-};
-
-const emptyStyle = {
-  border: "1px dashed rgba(255,255,255,0.16)",
-  borderRadius: 10,
-  color: "rgba(244,240,232,0.58)",
-  padding: 22,
-  textAlign: "center" as const,
 };
