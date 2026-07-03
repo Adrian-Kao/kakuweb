@@ -58,7 +58,7 @@ export default function PhotoViewerOverlay({
       ) : null}
 
       <div
-        className="grid max-h-[90vh] w-full max-w-6xl grid-cols-1 items-end gap-7 lg:grid-cols-[minmax(0,1fr)_20rem]"
+        className="grid max-h-[90vh] w-full max-w-[96vw] grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,70vw)_18rem] lg:gap-16"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="relative mx-auto flex max-h-[72vh] w-full max-w-full items-center justify-center lg:max-h-[80vh] lg:max-w-[70vw]">
@@ -70,7 +70,7 @@ export default function PhotoViewerOverlay({
           />
         </div>
 
-        <div className="mx-auto w-full max-w-sm lg:mx-0">
+        <div className="relative z-10 mx-auto w-full max-w-sm lg:mx-0 lg:translate-x-8 lg:pl-6">
           <p className="text-xs uppercase tracking-[0.32em] text-[#c9a46a]">
             {photo.year} / {photo.categoryName}
           </p>
