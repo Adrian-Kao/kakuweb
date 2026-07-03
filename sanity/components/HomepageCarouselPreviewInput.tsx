@@ -509,10 +509,15 @@ const shellStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 28,
-  maxWidth: "100%",
+
+  // 吃回 Sanity 左側 label 欄位空間
+  marginLeft: -260,
+  width: "calc(100% + 260px)",
+  maxWidth: "calc(100% + 260px)",
+
+  // 防止右側超出
   overflowX: "hidden",
   paddingBottom: 12,
-  width: "100%",
 };
 
 const sectionHeaderStyle: CSSProperties = {
