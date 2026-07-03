@@ -511,7 +511,7 @@ const shellStyle: CSSProperties = {
   gap: 28,
 
   // 吃回 Sanity 左側 label 欄位空間
-  marginLeft: -260,
+  marginLeft: -200,
   width: "calc(100% + 260px)",
   maxWidth: "calc(100% + 260px)",
 
