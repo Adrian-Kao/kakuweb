@@ -116,7 +116,7 @@ export default function GalleryFilters({
                       : "border-white/10 text-[rgba(243,238,230,0.48)] hover:text-[#f3eee6]",
                   ].join(" ")}
                 >
-                 
+                  {String(index + 1).padStart(2, "0")} — {category.label}
                 </button>
               );
             })}
