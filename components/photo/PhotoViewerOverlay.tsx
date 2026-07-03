@@ -49,7 +49,7 @@ export default function PhotoViewerOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-[#050505]/90 text-[#f3eee6] backdrop-blur-md"
+      className="fixed inset-0 z-[9999] bg-[#050505] text-[#f3eee6] lg:bg-[#050505]/90 lg:backdrop-blur-md"
       style={{
         height: "100dvh",
         paddingTop: "env(safe-area-inset-top)",
@@ -64,7 +64,7 @@ export default function PhotoViewerOverlay({
           event.stopPropagation();
           onClose();
         }}
-        className="absolute right-5 top-5 z-50 rounded-full border border-white/15 bg-black/45 px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#f3eee6]/80 transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
+        className="absolute right-4 top-4 z-50 rounded-full border border-white/15 bg-black/45 px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#f3eee6]/80 lg:right-5 lg:top-5 lg:transition lg:hover:border-[#c9a46a]/70 lg:hover:text-[#f3eee6]"
       >
         Close
       </button>
@@ -77,25 +77,21 @@ export default function PhotoViewerOverlay({
             event.stopPropagation();
             onPrevious();
           }}
-          className="absolute left-4 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/45 text-3xl font-light text-[#f3eee6]/70 transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
+          className="absolute left-3 top-1/2 z-50 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/45 text-3xl font-light text-[#f3eee6]/70 lg:left-4 lg:h-11 lg:w-11 lg:transition lg:hover:border-[#c9a46a]/70 lg:hover:text-[#f3eee6]"
         >
           ‹
         </button>
       ) : null}
 
       <div
-        className="flex h-full w-full items-center justify-center px-4 py-20"
+        className="flex h-full w-full items-center justify-center px-0 py-0 lg:px-4 lg:py-20"
         onClick={(event) => event.stopPropagation()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={photo.imageUrl}
           alt={photo.alt || photo.title || photo.seriesTitle}
-          className="block max-w-full animate-[galleryFocus_360ms_ease-out] object-contain shadow-[0_50px_160px_rgba(0,0,0,0.72)]"
-          style={{
-            maxHeight: "calc(100dvh - 180px)",
-            maxWidth: "calc(100vw - 32px)",
-          }}
+          className="block max-h-[100dvh] max-w-[100vw] object-contain lg:max-h-[calc(100dvh-180px)] lg:max-w-[calc(100vw-32px)] lg:animate-[galleryFocus_360ms_ease-out] lg:shadow-[0_50px_160px_rgba(0,0,0,0.72)]"
         />
       </div>
 
@@ -107,14 +103,14 @@ export default function PhotoViewerOverlay({
             event.stopPropagation();
             onNext();
           }}
-          className="absolute right-4 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/45 text-3xl font-light text-[#f3eee6]/70 transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
+          className="absolute right-3 top-1/2 z-50 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/45 text-3xl font-light text-[#f3eee6]/70 lg:right-4 lg:h-11 lg:w-11 lg:transition lg:hover:border-[#c9a46a]/70 lg:hover:text-[#f3eee6]"
         >
           ›
         </button>
       ) : null}
 
       <div
-        className="absolute bottom-5 left-5 right-5 z-40 text-center"
+        className="absolute bottom-5 left-5 right-5 z-40 hidden text-center lg:block"
         onClick={(event) => event.stopPropagation()}
       >
         <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a]">
