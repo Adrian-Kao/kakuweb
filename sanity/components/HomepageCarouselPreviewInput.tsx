@@ -77,6 +77,7 @@ export default function HomepageCarouselPreviewInput({
 }: HomepageCarouselPreviewInputProps) {
   const client = useClient({ apiVersion: "2025-01-01" });
   const items = useMemo(() => value ?? [], [value]);
+
   const [categories, setCategories] = useState<CategoryPreview[]>([]);
   const [projects, setProjects] = useState<ProjectPreview[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -175,6 +176,7 @@ export default function HomepageCarouselPreviewInput({
       const matchesQuery = normalizedQuery
         ? getProjectTitle(project).toLowerCase().includes(normalizedQuery)
         : true;
+
       const matchesCategory = selectedCategoryId
         ? project.categories?.some((category) => category._id === selectedCategoryId)
         : true;
@@ -206,6 +208,7 @@ export default function HomepageCarouselPreviewInput({
         ? current.filter((id) => id !== categoryId)
         : [...current, categoryId],
     );
+
     setSelectedCategoryId(categoryId);
   }
 
@@ -259,8 +262,6 @@ export default function HomepageCarouselPreviewInput({
 
   return (
     <div style={shellStyle}>
-
-
       <section style={carouselSectionStyle}>
         {selectedItems.length > 0 ? (
           <div style={carouselTrackStyle}>
@@ -274,24 +275,39 @@ export default function HomepageCarouselPreviewInput({
                   if (dragIndex !== null) {
                     moveItem(dragIndex, index);
                   }
+
                   setDragIndex(null);
                 }}
                 onDragEnd={() => setDragIndex(null)}
                 style={carouselCardStyle}
                 title="拖曳調整順序"
               >
-                <span style={carouselNumberStyle}>{String(visualIndex + 1).padStart(2, "0")}</span>
+                <span style={carouselNumberStyle}>
+                  {String(visualIndex + 1).padStart(2, "0")}
+                </span>
+
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
+
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
                   <span>{getImageLabel(image, visualIndex)}</span>
                 </div>
+
                 <div style={carouselActionsStyle}>
-                  <button type="button" style={ghostButtonStyle} onClick={() => toggleVisible(index)}>
+                  <button
+                    type="button"
+                    style={ghostButtonStyle}
+                    onClick={() => toggleVisible(index)}
+                  >
                     {item.isVisible === false ? "顯示" : "隱藏"}
                   </button>
-                  <button type="button" style={removeButtonStyle} onClick={() => removeItem(index)}>
+
+                  <button
+                    type="button"
+                    style={removeButtonStyle}
+                    onClick={() => removeItem(index)}
+                  >
                     移除
                   </button>
                 </div>
@@ -362,9 +378,7 @@ export default function HomepageCarouselPreviewInput({
                           }}
                           onClick={() => toggleCategory(child._id)}
                         >
-                          <span>
-                            {expandedCategoryIds.includes(child._id) ? "▾" : "▸"}
-                          </span>
+                          <span>{expandedCategoryIds.includes(child._id) ? "▾" : "▸"}</span>
                           <span>{child.title || "未命名作品集分類"}</span>
                         </button>
 
@@ -430,8 +444,9 @@ export default function HomepageCarouselPreviewInput({
                 ) : (
                   <span style={projectThumbStyle} />
                 )}
-                <span>{getProjectTitle(project)}</span>
-                <small>{project.galleryImages?.length ?? 0} 張</small>
+
+                <span style={projectTitleTextStyle}>{getProjectTitle(project)}</span>
+                <small style={projectCountStyle}>{project.galleryImages?.length ?? 0} 張</small>
               </button>
             ))}
           </div>
@@ -467,6 +482,7 @@ export default function HomepageCarouselPreviewInput({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={getImageUrl(image)} alt="" style={imageStyle} />
                   ) : null}
+
                   <span style={imageCaptionStyle}>
                     {isSelected ? "已加入輪播" : "加入輪播"}
                   </span>
@@ -484,37 +500,44 @@ const shellStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 28,
-  left: "50%",
-  maxWidth: "1360px",
+  maxWidth: "100%",
   overflowX: "hidden",
   paddingBottom: 12,
-  position: "relative",
-  transform: "translateX(-50%)",
-  width: "min(1360px, 180%)",
+  width: "100%",
 };
 
 const carouselSectionStyle: CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.12)",
+  boxSizing: "border-box",
+  maxWidth: "100%",
+  overflowX: "hidden",
   paddingBottom: 26,
+  width: "100%",
 };
 
 const carouselTrackStyle: CSSProperties = {
+  boxSizing: "border-box",
   display: "grid",
   gap: 18,
   gridAutoColumns: "minmax(190px, 230px)",
   gridAutoFlow: "column",
+  maxWidth: "100%",
   overflowX: "auto",
   padding: "4px 2px 18px",
   scrollbarColor: "rgba(201,164,106,0.72) rgba(255,255,255,0.08)",
+  width: "100%",
 };
 
 const carouselCardStyle: CSSProperties = {
   background: "rgba(255,255,255,0.045)",
   border: "1px solid rgba(255,255,255,0.13)",
   borderRadius: 18,
+  boxSizing: "border-box",
   cursor: "grab",
+  minWidth: 0,
   overflow: "hidden",
   position: "relative",
+  width: "100%",
 };
 
 const carouselNumberStyle: CSSProperties = {
@@ -531,16 +554,15 @@ const carouselNumberStyle: CSSProperties = {
 };
 
 const carouselImageStyle: CSSProperties = {
-  aspectRatio: "4 / 3",
-  background: "#111",
   display: "block",
-  objectFit: "cover",
+  height: "auto",
   width: "100%",
 };
 
 const carouselMetaStyle: CSSProperties = {
   display: "grid",
   gap: 4,
+  minWidth: 0,
   padding: "12px 12px 0",
 };
 
@@ -573,8 +595,12 @@ const pickerStyle: CSSProperties = {
 const treeStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 18,
+  boxSizing: "border-box",
   minHeight: 520,
+  minWidth: 0,
+  overflowX: "hidden",
   padding: 18,
+  width: "100%",
 };
 
 const treeButtonStyle: CSSProperties = {
@@ -587,6 +613,7 @@ const treeButtonStyle: CSSProperties = {
   display: "flex",
   gap: 10,
   font: "inherit",
+  minWidth: 0,
   padding: "11px 12px",
   textAlign: "left",
   width: "100%",
@@ -619,6 +646,7 @@ const projectTreeButtonStyle: CSSProperties = {
   display: "flex",
   gap: 10,
   font: "inherit",
+  minWidth: 0,
   padding: "9px 12px",
   textAlign: "left",
   width: "100%",
@@ -648,9 +676,13 @@ const browserStyle: CSSProperties = {
 
 const browserTopStyle: CSSProperties = {
   alignItems: "end",
+  boxSizing: "border-box",
   display: "flex",
   justifyContent: "space-between",
   marginBottom: 14,
+  maxWidth: "100%",
+  minWidth: 0,
+  width: "100%",
 };
 
 const searchLabelStyle: CSSProperties = {
@@ -659,21 +691,27 @@ const searchLabelStyle: CSSProperties = {
   flex: "0 1 420px",
   gap: 8,
   fontSize: 14,
+  minWidth: 0,
 };
 
 const searchInputStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.14)",
   borderRadius: 10,
+  boxSizing: "border-box",
   color: "#f4f0e8",
   font: "inherit",
   padding: "12px 14px",
+  width: "100%",
 };
 
 const projectListStyle: CSSProperties = {
+  boxSizing: "border-box",
   display: "grid",
   gap: 10,
-  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  maxWidth: "100%",
+  width: "100%",
 };
 
 const projectButtonStyle: CSSProperties = {
@@ -681,13 +719,16 @@ const projectButtonStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 12,
+  boxSizing: "border-box",
   color: "#f4f0e8",
   cursor: "pointer",
   display: "grid",
   gap: 10,
   gridTemplateColumns: "54px minmax(0, 1fr) auto",
+  minWidth: 0,
   padding: 8,
   textAlign: "left",
+  width: "100%",
 };
 
 const activeProjectStyle: CSSProperties = {
@@ -703,11 +744,26 @@ const projectThumbStyle: CSSProperties = {
   width: 54,
 };
 
+const projectTitleTextStyle: CSSProperties = {
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+
+const projectCountStyle: CSSProperties = {
+  whiteSpace: "nowrap",
+};
+
 const imagePickerHeaderStyle: CSSProperties = {
   alignItems: "center",
+  boxSizing: "border-box",
   display: "flex",
+  gap: 16,
   justifyContent: "space-between",
   marginTop: 28,
+  maxWidth: "100%",
+  minWidth: 0,
+  width: "100%",
 };
 
 const imageGridStyle: CSSProperties = {
@@ -716,12 +772,8 @@ const imageGridStyle: CSSProperties = {
   gap: 18,
   gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
   marginTop: 14,
-  maxHeight: "calc(100vh - 430px)",
-  minHeight: 360,
   maxWidth: "100%",
   overflowX: "hidden",
-  overflowY: "auto",
-  paddingRight: 10,
   width: "100%",
 };
 
@@ -729,6 +781,7 @@ const imageButtonStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 18,
+  boxSizing: "border-box",
   color: "#f4f0e8",
   cursor: "pointer",
   minWidth: 0,
@@ -751,12 +804,14 @@ const imageStyle: CSSProperties = {
 const imageCaptionStyle: CSSProperties = {
   alignItems: "center",
   background: "rgba(5,5,5,0.42)",
+  boxSizing: "border-box",
   display: "flex",
   fontSize: 13,
   height: 34,
   overflow: "hidden",
   padding: "0 10px",
   whiteSpace: "nowrap",
+  width: "100%",
 };
 
 const ghostButtonStyle: CSSProperties = {
