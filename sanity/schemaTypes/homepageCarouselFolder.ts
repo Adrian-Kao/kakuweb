@@ -11,13 +11,11 @@ export const carouselItemType = defineType({
       title: "來源作品集",
       type: "reference",
       to: [{ type: "project" }],
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "selectedImageKey",
       title: "輪播照片",
       type: "string",
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "isVisible",
