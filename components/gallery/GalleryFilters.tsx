@@ -100,7 +100,7 @@ export default function GalleryFilters({
                     : "border-white/10 text-[rgba(243,238,230,0.45)] hover:text-[#f3eee6]",
                 ].join(" ")}
               >
-                {String(index + 1).padStart(2, "0")} \u2014 {item.title}
+                {String(index + 1).padStart(2, "0")} {item.title}
               </button>
             );
           })}

@@ -54,11 +54,9 @@ export const homepageCarouselQuery = /* groq */ `
   *[_type == "homepageCarousel" && _id == "homepageCarousel"][0] {
     _id,
     title,
-    carouselItems[isVisible != false] | order(order asc) {
+    carouselItems[isVisible != false] {
       _key,
-      caption,
       selectedImageKey,
-      order,
       isVisible,
       project->{
         _id,
