@@ -31,14 +31,8 @@ export default function GalleryFilters({
   useEffect(() => {
     if (activeCategory === "all" && categories[0]?.id) {
       onCategoryChange(categories[0].id);
-      setExpandedPanel("series");
     }
   }, [activeCategory, categories, onCategoryChange]);
-
-  const activeCategoryLabel =
-    categories.find((category) => category.id === effectiveCategoryId)?.label ??
-    categories[0]?.label ??
-    "Select Category";
 
   const visibleSeries = useMemo(() => {
     if (!effectiveCategoryId) {
@@ -47,6 +41,10 @@ export default function GalleryFilters({
 
     return series.filter((item) => item.categoryId === effectiveCategoryId);
   }, [effectiveCategoryId, series]);
+
+  const activeCategoryLabel =
+    categories.find((category) => category.id === effectiveCategoryId)?.label ??
+    "請選擇作品分類";
 
   const isCategoriesOpen = expandedPanel === "categories";
   const isSeriesOpen = expandedPanel === "series";
@@ -84,18 +82,24 @@ export default function GalleryFilters({
               : "border-white/10 text-[rgba(243,238,230,0.48)] hover:text-[#f3eee6]",
           ].join(" ")}
         >
-          <span>{activeCategoryLabel}</span>
+          <span>作品分類</span>
           <span className="text-[0.65rem]">
             {isCategoriesOpen ? "－" : "＋"}
           </span>
         </button>
+
+        {!isCategoriesOpen ? (
+          <p className="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-[rgba(243,238,230,0.42)]">
+            {activeCategoryLabel}
+          </p>
+        ) : null}
 
         {isCategoriesOpen ? (
           <nav
             aria-label="Gallery categories"
             className="scrollbar-hidden mt-4 flex max-h-[24vh] flex-col gap-2 overflow-y-auto pr-2"
           >
-            {categories.map((category) => {
+            {categories.map((category, index) => {
               const isActive = effectiveCategoryId === category.id;
 
               return (
@@ -111,7 +115,7 @@ export default function GalleryFilters({
                       : "border-white/10 text-[rgba(243,238,230,0.48)] hover:text-[#f3eee6]",
                   ].join(" ")}
                 >
-                  {category.label}
+                  {String(index + 1).padStart(2, "0")} — {category.label}
                 </button>
               );
             })}
@@ -137,13 +141,19 @@ export default function GalleryFilters({
           </span>
         </button>
 
+        {!isSeriesOpen ? (
+          <p className="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-[rgba(243,238,230,0.42)]">
+            {activeCategoryLabel} 的作品集
+          </p>
+        ) : null}
+
         {isSeriesOpen ? (
           <nav
             aria-label="Gallery series"
             className="scrollbar-hidden mt-4 flex max-h-[26vh] flex-col gap-2 overflow-y-auto pr-2"
           >
             {visibleSeries.length > 0 ? (
-              visibleSeries.map((item) => {
+              visibleSeries.map((item, index) => {
                 const isActive = activeSeriesSlug === item.slug;
 
                 return (
@@ -159,7 +169,7 @@ export default function GalleryFilters({
                         : "border-white/10 text-[rgba(243,238,230,0.45)] hover:text-[#f3eee6]",
                     ].join(" ")}
                   >
-                    {item.title}
+                     {item.title}
                   </button>
                 );
               })

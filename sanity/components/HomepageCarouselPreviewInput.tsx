@@ -2,6 +2,7 @@
 
 import type { CSSProperties, PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { set, useClient } from "sanity";
 
 type CarouselCrop = {
@@ -436,6 +437,7 @@ export default function HomepageCarouselPreviewInput({
 
   function startCropDrag(type: CropDragState["type"], event: PointerEvent) {
     event.preventDefault();
+    event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
     setCropDragState({
       type,
@@ -476,47 +478,125 @@ export default function HomepageCarouselPreviewInput({
     updateItems(nextItems);
   }
 
-  if (isPublishedView) {
-    return (
-      <div style={publishedShellStyle}>
-        <div style={sectionHeaderStyle}>
-          <strong>目前已發布輪播順序</strong>
-          <span>Published 只顯示網站正在使用的版本</span>
+  const selectionModal = pendingSelection ? (
+    <div
+      style={modalBackdropStyle}
+      onPointerMove={(event) => updateCropFromPointer(event.clientX, event.clientY)}
+      onPointerUp={() => setCropDragState(null)}
+      onPointerCancel={() => setCropDragState(null)}
+    >
+      <div style={modalPanelStyle} onClick={(event) => event.stopPropagation()}>
+        <div style={modalHeaderStyle}>
+          <strong>{getProjectTitle(pendingSelection.project)}</strong>
+          <span>{getImageLabel(pendingSelection.image)}</span>
         </div>
 
-        {visiblePublishedItems.length > 0 ? (
-          <div style={publishedTrackStyle}>
-            {visiblePublishedItems.map(({ item, project, image }, visualIndex) => (
-              <article
-                key={item._key ?? `${project._id}-${image._key}`}
-                style={publishedCardStyle}
-              >
-                <span style={carouselNumberStyle}>
-                  {String(visualIndex + 1).padStart(2, "0")}
-                </span>
-
-                <div style={getCroppedFrameStyle(item.crop)}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={getImageUrl(image)} alt="" style={getCroppedImageStyle(item.crop)} />
-                </div>
-
-                <div style={carouselMetaStyle}>
-                  <strong>{getProjectTitle(project)}</strong>
-                  
-                </div>
-              </article>
-            ))}
+        {isCropMode ? (
+          <div ref={cropStageRef} style={cropStageStyle}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={getImageUrl(pendingSelection.image)} alt="" style={modalImageStyle} />
+            <div
+              style={{
+                ...cropBoxStyle,
+                left: `${cropValue.x}%`,
+                top: `${cropValue.y}%`,
+                width: `${cropValue.width}%`,
+                height: `${cropValue.height}%`,
+              }}
+              onPointerDown={(event) => startCropDrag("move", event)}
+            >
+              {(["nw", "ne", "sw", "se"] as const).map((handle) => (
+                <span
+                  key={handle}
+                  style={{ ...cropHandleStyle, ...cropHandlePositionStyles[handle] }}
+                  onPointerDown={(event) => startCropDrag(handle, event)}
+                />
+              ))}
+            </div>
           </div>
         ) : (
-          <div style={emptyCarouselStyle}>目前 Published 版本沒有顯示中的首頁輪播照片。</div>
+          <div style={modalPreviewFrameStyle}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={getImageUrl(pendingSelection.image)} alt="" style={modalImageStyle} />
+          </div>
         )}
+
+        <div style={modalActionsStyle}>
+          <button type="button" style={ghostButtonStyle} onClick={closeSelectionModal}>
+            取消
+          </button>
+
+          {isCropMode ? (
+            <>
+              <button type="button" style={ghostButtonStyle} onClick={() => setIsCropMode(false)}>
+                重新選擇
+              </button>
+              <button type="button" style={primaryButtonStyle} onClick={addPendingCrop}>
+                確認輪播
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" style={ghostButtonStyle} onClick={startCropMode}>
+                裁切
+              </button>
+              <button type="button" style={primaryButtonStyle} onClick={addPendingOriginal}>
+                加入輪播
+              </button>
+            </>
+          )}
+        </div>
       </div>
+    </div>
+  ) : null;
+
+  if (isPublishedView) {
+    return (
+      <>
+        <div style={publishedShellStyle}>
+          <div style={sectionHeaderStyle}>
+            <strong>目前已發布輪播順序</strong>
+            <span>Published 只顯示網站正在使用的版本</span>
+          </div>
+
+          {visiblePublishedItems.length > 0 ? (
+            <div style={publishedTrackStyle}>
+              {visiblePublishedItems.map(({ item, project, image }, visualIndex) => (
+                <article
+                  key={item._key ?? `${project._id}-${image._key}`}
+                  style={publishedCardStyle}
+                >
+                  <span style={carouselNumberStyle}>
+                    {String(visualIndex + 1).padStart(2, "0")}
+                  </span>
+
+                  <div style={getCroppedFrameStyle(item.crop)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={getImageUrl(image)} alt="" style={getCroppedImageStyle(item.crop)} />
+                  </div>
+
+                  <div style={carouselMetaStyle}>
+                    <strong>{getProjectTitle(project)}</strong>
+                    
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div style={emptyCarouselStyle}>目前 Published 版本沒有顯示中的首頁輪播照片。</div>
+          )}
+        </div>
+        {selectionModal && typeof document !== "undefined"
+          ? createPortal(selectionModal, document.body)
+          : null}
+      </>
     );
   }
 
   return (
-    <div style={shellStyle}>
-      <section style={carouselSectionStyle}>
+    <>
+      <div style={shellStyle}>
+        <section style={carouselSectionStyle}>
         <div style={sectionHeaderStyle}>
           <strong>首頁輪播</strong>
           <span>可拖曳調整順序</span>
@@ -578,9 +658,9 @@ export default function HomepageCarouselPreviewInput({
         ) : (
           <div style={emptyCarouselStyle}>從下方作品集中挑選照片加入首頁輪播。</div>
         )}
-      </section>
+        </section>
 
-      <section style={pickerStyle}>
+        <section style={pickerStyle}>
         <aside style={treeStyle}>
           <div style={panelTitleStyle}>分類 / 作品集</div>
 
@@ -757,80 +837,12 @@ export default function HomepageCarouselPreviewInput({
             })}
           </div>
         </div>
-      </section>
-
-      {pendingSelection ? (
-        <div
-          style={modalBackdropStyle}
-          onPointerMove={(event) => updateCropFromPointer(event.clientX, event.clientY)}
-          onPointerUp={() => setCropDragState(null)}
-          onPointerCancel={() => setCropDragState(null)}
-        >
-          <div style={modalPanelStyle} onClick={(event) => event.stopPropagation()}>
-            <div style={modalHeaderStyle}>
-              <strong>{getProjectTitle(pendingSelection.project)}</strong>
-              <span>{getImageLabel(pendingSelection.image)}</span>
-            </div>
-
-            {isCropMode ? (
-              <div ref={cropStageRef} style={cropStageStyle}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getImageUrl(pendingSelection.image)} alt="" style={modalImageStyle} />
-                <div
-                  style={{
-                    ...cropBoxStyle,
-                    left: `${cropValue.x}%`,
-                    top: `${cropValue.y}%`,
-                    width: `${cropValue.width}%`,
-                    height: `${cropValue.height}%`,
-                  }}
-                  onPointerDown={(event) => startCropDrag("move", event)}
-                >
-                  {(["nw", "ne", "sw", "se"] as const).map((handle) => (
-                    <span
-                      key={handle}
-                      style={{ ...cropHandleStyle, ...cropHandlePositionStyles[handle] }}
-                      onPointerDown={(event) => startCropDrag(handle, event)}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div style={modalPreviewFrameStyle}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getImageUrl(pendingSelection.image)} alt="" style={modalImageStyle} />
-              </div>
-            )}
-
-            <div style={modalActionsStyle}>
-              <button type="button" style={ghostButtonStyle} onClick={closeSelectionModal}>
-                取消
-              </button>
-
-              {isCropMode ? (
-                <>
-                  <button type="button" style={ghostButtonStyle} onClick={() => setIsCropMode(false)}>
-                    重新選擇
-                  </button>
-                  <button type="button" style={primaryButtonStyle} onClick={addPendingCrop}>
-                    確認輪播
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button type="button" style={ghostButtonStyle} onClick={startCropMode}>
-                    裁切
-                  </button>
-                  <button type="button" style={primaryButtonStyle} onClick={addPendingOriginal}>
-                    加入輪播
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
+        </section>
+      </div>
+      {selectionModal && typeof document !== "undefined"
+        ? createPortal(selectionModal, document.body)
+        : null}
+    </>
   );
 }
 
@@ -1243,7 +1255,7 @@ const modalBackdropStyle: CSSProperties = {
   position: "fixed",
   right: 0,
   top: 0,
-  zIndex: 5000,
+  zIndex: 2147483647,
 };
 
 const modalPanelStyle: CSSProperties = {
