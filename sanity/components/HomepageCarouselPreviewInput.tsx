@@ -483,9 +483,10 @@ export default function HomepageCarouselPreviewInput({
 const shellStyle: CSSProperties = {
   display: "grid",
   gap: 28,
-  marginLeft: "calc((100vw - 460px - 100%) / -2)",
+  maxWidth: "100%",
+  overflowX: "hidden",
   paddingBottom: 12,
-  width: "min(1320px, calc(100vw - 460px))",
+  width: "100%",
 };
 
 const carouselSectionStyle: CSSProperties = {
@@ -556,9 +557,13 @@ const emptyCarouselStyle: CSSProperties = {
 };
 
 const pickerStyle: CSSProperties = {
+  boxSizing: "border-box",
   display: "grid",
   gap: 36,
-  gridTemplateColumns: "340px minmax(0, 1fr)",
+  gridTemplateColumns: "minmax(260px, 340px) minmax(0, 1fr)",
+  maxWidth: "100%",
+  overflowX: "hidden",
+  width: "100%",
 };
 
 const treeStyle: CSSProperties = {
@@ -633,7 +638,8 @@ const browserStyle: CSSProperties = {
   boxSizing: "border-box",
   maxWidth: "100%",
   minWidth: 0,
-  overflow: "hidden",
+  overflowX: "hidden",
+  width: "100%",
 };
 
 const browserTopStyle: CSSProperties = {
@@ -703,13 +709,12 @@ const imagePickerHeaderStyle: CSSProperties = {
 const imageGridStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
-  gap: 12,
-  gridAutoRows: 176,
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-  justifyContent: "start",
+  gap: 18,
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
   marginTop: 14,
   maxHeight: "calc(100vh - 430px)",
   minHeight: 360,
+  maxWidth: "100%",
   overflowX: "hidden",
   overflowY: "auto",
   paddingRight: 10,
@@ -722,9 +727,7 @@ const imageButtonStyle: CSSProperties = {
   borderRadius: 18,
   color: "#f4f0e8",
   cursor: "pointer",
-  display: "grid",
-  gridTemplateRows: "1fr 34px",
-  height: 176,
+  minWidth: 0,
   overflow: "hidden",
   padding: 0,
   textAlign: "left",
@@ -736,11 +739,8 @@ const selectedImageStyle: CSSProperties = {
 };
 
 const imageStyle: CSSProperties = {
-  background: "#111",
   display: "block",
-  height: "100%",
-  minHeight: 0,
-  objectFit: "cover",
+  height: "auto",
   width: "100%",
 };
 
