@@ -30,11 +30,7 @@ export default function GalleryFilters({
         <h1 className="mt-14 text-5xl font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6] sm:text-6xl">
           Gallery
         </h1>
-        <p className="mt-8 max-w-xs text-base leading-7 text-[rgba(243,238,230,0.62)]">
-          {activeSeriesTitle
-            ? `Selected series: ${activeSeriesTitle}.`
-            : "An editorial archive of light, shadow, and memory."}
-        </p>
+
       </div>
 
       <nav
