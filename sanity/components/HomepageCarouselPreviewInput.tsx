@@ -67,7 +67,7 @@ type PendingSelection = {
 };
 
 type CropDragState = {
-  type: "move" | "nw" | "ne" | "sw" | "se";
+  type: "move" | "n" | "e" | "s" | "w" | "nw" | "ne" | "sw" | "se";
   startX: number;
   startY: number;
   startCrop: CarouselCrop;
@@ -107,16 +107,14 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function normalizeCrop(crop: CarouselCrop): CarouselCrop {
-  const width = clamp(crop.width, 24, 100);
-  const height = width * 9 / 16;
-  const clampedHeight = clamp(height, 13.5, 100);
-  const clampedWidth = clampedHeight * 16 / 9;
+  const width = clamp(crop.width, 12, 100);
+  const height = clamp(crop.height, 12, 100);
 
   return {
-    x: clamp(crop.x, 0, 100 - clampedWidth),
-    y: clamp(crop.y, 0, 100 - clampedHeight),
-    width: clampedWidth,
-    height: clampedHeight,
+    x: clamp(crop.x, 0, 100 - width),
+    y: clamp(crop.y, 0, 100 - height),
+    width,
+    height,
   };
 }
 
@@ -405,24 +403,31 @@ export default function HomepageCarouselPreviewInput({
       return;
     }
 
-    const minWidth = 24;
-    let nextWidth = start.width;
     let nextX = start.x;
     let nextY = start.y;
+    let nextWidth = start.width;
+    let nextHeight = start.height;
+    const minWidth = 12;
+    const minHeight = 12;
+    const right = start.x + start.width;
+    const bottom = start.y + start.height;
 
-    if (cropDragState.type === "se" || cropDragState.type === "ne") {
+    if (cropDragState.type.includes("e")) {
       nextWidth = clamp(start.width + dx, minWidth, 100 - start.x);
-    } else {
-      nextWidth = clamp(start.width - dx, minWidth, start.x + start.width);
-      nextX = start.x + start.width - nextWidth;
     }
 
-    const nextHeight = nextWidth * 9 / 16;
+    if (cropDragState.type.includes("s")) {
+      nextHeight = clamp(start.height + dy, minHeight, 100 - start.y);
+    }
 
-    if (cropDragState.type === "sw" || cropDragState.type === "se") {
-      nextY = clamp(start.y, 0, 100 - nextHeight);
-    } else {
-      nextY = start.y + start.height - nextHeight;
+    if (cropDragState.type.includes("w")) {
+      nextX = clamp(start.x + dx, 0, right - minWidth);
+      nextWidth = right - nextX;
+    }
+
+    if (cropDragState.type.includes("n")) {
+      nextY = clamp(start.y + dy, 0, bottom - minHeight);
+      nextHeight = bottom - nextY;
     }
 
     setCropValue(
@@ -505,7 +510,7 @@ export default function HomepageCarouselPreviewInput({
               }}
               onPointerDown={(event) => startCropDrag("move", event)}
             >
-              {(["nw", "ne", "sw", "se"] as const).map((handle) => (
+              {(["n", "e", "s", "w", "nw", "ne", "sw", "se"] as const).map((handle) => (
                 <span
                   key={handle}
                   style={{ ...cropHandleStyle, ...cropHandlePositionStyles[handle] }}
@@ -1331,6 +1336,30 @@ const cropHandleStyle: CSSProperties = {
 
 const cropHandlePositionStyles: Record<CropDragState["type"], CSSProperties> = {
   move: {},
+  n: {
+    cursor: "ns-resize",
+    left: "50%",
+    top: -10,
+    transform: "translateX(-50%)",
+  },
+  e: {
+    cursor: "ew-resize",
+    right: -10,
+    top: "50%",
+    transform: "translateY(-50%)",
+  },
+  s: {
+    bottom: -10,
+    cursor: "ns-resize",
+    left: "50%",
+    transform: "translateX(-50%)",
+  },
+  w: {
+    cursor: "ew-resize",
+    left: -10,
+    top: "50%",
+    transform: "translateY(-50%)",
+  },
   nw: { cursor: "nwse-resize", left: -10, top: -10 },
   ne: { cursor: "nesw-resize", right: -10, top: -10 },
   sw: { bottom: -10, cursor: "nesw-resize", left: -10 },

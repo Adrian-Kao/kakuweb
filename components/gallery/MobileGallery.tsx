@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { GalleryPhoto } from "../../data/gallery";
 import type { GalleryData } from "../../lib/sanity/data";
 import MobileShell from "../mobile/MobileShell";
@@ -38,15 +38,21 @@ function getCategoryScope(categoryId: string | null, categories: GalleryData["ca
 
 export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { categories, series, photos } = data;
   const seriesSlug = forcedSeriesSlug ?? searchParams.get("series");
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const activeSeries = series.find((item) => item.slug === seriesSlug);
   const activeCategoryFromSlug = categories.find(
     (category) => category.id === `category-${seriesSlug}`,
   );
   const effectiveCategoryId = activeCategoryFromSlug?.id ?? activeCategoryId;
 
   const visibleSeries = useMemo(() => {
+    if (activeSeries) {
+      return [activeSeries];
+    }
+
     const categoryScope = getCategoryScope(effectiveCategoryId, categories);
 
     if (!categoryScope) {
@@ -54,10 +60,10 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
     }
 
     return series.filter((item) => categoryScope.has(item.categoryId));
-  }, [categories, effectiveCategoryId, series]);
+  }, [activeSeries, categories, effectiveCategoryId, series]);
 
   useEffect(() => {
-    if (!seriesSlug) {
+    if (!seriesSlug || activeSeries) {
       return;
     }
 
@@ -68,7 +74,7 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
     const frame = requestAnimationFrame(() => scrollToSeries(seriesSlug));
 
     return () => cancelAnimationFrame(frame);
-  }, [activeCategoryFromSlug, seriesSlug]);
+  }, [activeCategoryFromSlug, activeSeries, seriesSlug]);
 
   return (
     <MobileShell>
@@ -121,13 +127,23 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
               <button
                 key={series.id}
                 type="button"
-                onClick={() => scrollToSeries(series.slug)}
+                onClick={() => router.push(`/gallery/${series.slug}`)}
                 className="shrink-0 border border-white/10 px-4 py-3 text-left text-[0.68rem] uppercase tracking-[0.2em] text-[rgba(243,238,230,0.62)] transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
               >
                 {String(index + 1).padStart(2, "0")} {series.title}
               </button>
             ))}
           </div>
+
+          {activeSeries ? (
+            <button
+              type="button"
+              onClick={() => router.push("/gallery")}
+              className="mt-3 border-b border-[#c9a46a] pb-2 text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a]"
+            >
+              Back to Series
+            </button>
+          ) : null}
 
           <div className="mt-4 space-y-16">
             {visibleSeries.map((series, index) => {

@@ -29,10 +29,14 @@ export default function GalleryFilters({
     activeCategory === "all" ? categories[0]?.id : activeCategory;
 
   useEffect(() => {
+    if (activeSeriesSlug) {
+      return;
+    }
+
     if (activeCategory === "all" && categories[0]?.id) {
       onCategoryChange(categories[0].id);
     }
-  }, [activeCategory, categories, onCategoryChange]);
+  }, [activeCategory, activeSeriesSlug, categories, onCategoryChange]);
 
   const visibleSeries = useMemo(() => {
     if (!effectiveCategoryId) {
@@ -153,7 +157,7 @@ export default function GalleryFilters({
             className="scrollbar-hidden mt-4 flex max-h-[26vh] flex-col gap-2 overflow-y-auto pr-2"
           >
             {visibleSeries.length > 0 ? (
-              visibleSeries.map((item, index) => {
+              visibleSeries.map((item) => {
                 const isActive = activeSeriesSlug === item.slug;
 
                 return (
