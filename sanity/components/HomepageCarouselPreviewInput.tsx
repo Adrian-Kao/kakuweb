@@ -547,7 +547,7 @@ const carouselImageStyle: CSSProperties = {
   aspectRatio: "4 / 3",
   background: "#111",
   display: "block",
-  objectFit: "cover",
+  objectFit: "contain",
   width: "100%",
 };
 
@@ -741,7 +741,7 @@ const imageStyle: CSSProperties = {
   aspectRatio: "4 / 3",
   background: "#111",
   display: "block",
-  objectFit: "cover",
+  objectFit: "contain",
   width: "100%",
 };
 
