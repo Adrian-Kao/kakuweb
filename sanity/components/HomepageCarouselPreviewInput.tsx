@@ -486,26 +486,6 @@ const shellStyle: CSSProperties = {
   width: "calc(100vw - 120px)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "grid",
-  gap: 8,
-};
-
-const eyebrowStyle: CSSProperties = {
-  color: "rgba(244,240,232,0.54)",
-  fontSize: 13,
-  letterSpacing: "0.18em",
-  textTransform: "uppercase",
-};
-
-const titleStyle: CSSProperties = {
-  color: "#f4f0e8",
-  fontSize: 44,
-  fontWeight: 600,
-  lineHeight: 1,
-  margin: 0,
-};
-
 const carouselSectionStyle: CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.12)",
   paddingBottom: 26,

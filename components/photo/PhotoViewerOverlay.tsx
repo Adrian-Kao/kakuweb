@@ -38,78 +38,106 @@ export default function PhotoViewerOverlay({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose, onNext, onPrevious]);
 
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   return (
-  <div
-    className="fixed inset-0 z-[9999] bg-[#050505]/90 text-[#f3eee6] backdrop-blur-md"
-    style={{ height: "100dvh" }}
-    onClick={onClose}
-  >
-    <button
-      type="button"
-      aria-label="Close photo viewer"
-      onClick={(event) => {
-        event.stopPropagation();
-        onClose();
+    <div
+      className="fixed inset-0 z-[9999] bg-[#050505]/90 text-[#f3eee6] backdrop-blur-md"
+      style={{
+        height: "100dvh",
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}
-      className="absolute right-5 top-5 z-50 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#f3eee6]/80"
+      onClick={onClose}
     >
-      Close
-    </button>
-
-    {onPrevious ? (
       <button
         type="button"
-        aria-label="Previous photo"
+        aria-label="Close photo viewer"
         onClick={(event) => {
           event.stopPropagation();
-          onPrevious();
+          onClose();
         }}
-        className="absolute left-4 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/35 text-3xl font-light text-[#f3eee6]/70"
+        className="absolute right-5 top-5 z-50 rounded-full border border-white/15 bg-black/45 px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#f3eee6]/80 transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
       >
-        ‹
+        Close
       </button>
-    ) : null}
 
-    <div
-      className="flex h-full w-full items-center justify-center px-4 py-20"
-      onClick={(event) => event.stopPropagation()}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={photo.imageUrl}
-        alt={photo.alt || photo.title}
-        className="block max-w-full animate-[galleryFocus_360ms_ease-out] object-contain shadow-[0_50px_160px_rgba(0,0,0,0.72)]"
-        style={{
-          maxHeight: "calc(100dvh - 180px)",
-        }}
-      />
-    </div>
+      {onPrevious ? (
+        <button
+          type="button"
+          aria-label="Previous photo"
+          onClick={(event) => {
+            event.stopPropagation();
+            onPrevious();
+          }}
+          className="absolute left-4 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/45 text-3xl font-light text-[#f3eee6]/70 transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
+        >
+          ‹
+        </button>
+      ) : null}
 
-    {onNext ? (
-      <button
-        type="button"
-        aria-label="Next photo"
-        onClick={(event) => {
-          event.stopPropagation();
-          onNext();
-        }}
-        className="absolute right-4 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/35 text-3xl font-light text-[#f3eee6]/70"
+      <div
+        className="flex h-full w-full items-center justify-center px-4 py-20"
+        onClick={(event) => event.stopPropagation()}
       >
-        ›
-      </button>
-    ) : null}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photo.imageUrl}
+          alt={photo.alt || photo.title || photo.seriesTitle}
+          className="block max-w-full animate-[galleryFocus_360ms_ease-out] object-contain shadow-[0_50px_160px_rgba(0,0,0,0.72)]"
+          style={{
+            maxHeight: "calc(100dvh - 180px)",
+            maxWidth: "calc(100vw - 32px)",
+          }}
+        />
+      </div>
 
-    <div
-      className="absolute bottom-5 left-5 right-5 z-40 text-center"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a]">
-        {photo.year} / {photo.categoryName}
-      </p>
-      <h2 className="mt-2 text-sm font-light tracking-[0.08em] text-[#f3eee6]">
-        {photo.seriesTitle}
-      </h2>
+      {onNext ? (
+        <button
+          type="button"
+          aria-label="Next photo"
+          onClick={(event) => {
+            event.stopPropagation();
+            onNext();
+          }}
+          className="absolute right-4 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/45 text-3xl font-light text-[#f3eee6]/70 transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
+        >
+          ›
+        </button>
+      ) : null}
+
+      <div
+        className="absolute bottom-5 left-5 right-5 z-40 text-center"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p className="text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a]">
+          {photo.year} / {photo.categoryName}
+        </p>
+
+        <h2 className="mt-2 text-sm font-light tracking-[0.08em] text-[#f3eee6]">
+          {photo.seriesTitle}
+        </h2>
+
+        {onGoToGallery ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onGoToGallery(photo);
+            }}
+            className="mt-4 border-b border-[#c9a46a] pb-1 text-[0.68rem] uppercase tracking-[0.22em] text-[#c9a46a] transition hover:text-[#f3eee6]"
+          >
+            Go to Gallery
+          </button>
+        ) : null}
+      </div>
     </div>
-  </div>
-);
+  );
 }
