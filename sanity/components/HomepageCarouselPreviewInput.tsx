@@ -301,7 +301,7 @@ export default function HomepageCarouselPreviewInput({
 
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
-                  <span>{getImageLabel(image, visualIndex)}</span>
+                  
                 </div>
               </article>
             ))}
@@ -562,7 +562,7 @@ const shellStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 28,
-  marginLeft: -260,
+  marginLeft: -210,
   width: "calc(100% + 260px)",
   maxWidth: "calc(100% + 260px)",
   overflowX: "hidden",
