@@ -164,28 +164,22 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
           </div>
 
           {isSeriesDetail ? (
-            <div className="columns-1 gap-10 md:columns-2 xl:columns-3">
-              {visiblePhotos.map((photo, index) => (
+            <div className="grid grid-cols-1 gap-x-10 gap-y-14 md:grid-cols-2 xl:grid-cols-3">
+              {visiblePhotos.map((photo) => (
                 <button
                   key={photo.id}
                   type="button"
                   onClick={() => setSelectedPhotoId(photo.id)}
-                  className={[
-                    "group mb-12 block w-full break-inside-avoid text-left",
-                    index % 5 === 1 ? "pt-10" : "",
-                    index % 7 === 3 ? "pt-20" : "",
-                  ].join(" ")}
+                  className="group block w-full text-left"
                 >
                   <div
                     className="relative overflow-hidden border border-white/10 bg-[#111] transition duration-500 group-hover:brightness-110"
                     style={{ aspectRatio: photo.aspectRatio }}
                   >
                     <div
-                      className="absolute inset-0 bg-cover bg-center"
+                      className="absolute inset-0 bg-contain bg-center bg-no-repeat"
                       style={{ backgroundImage: `url(${photo.imageUrl})` }}
                     />
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(243,238,230,0.14),rgba(243,238,230,0.02)_40%,rgba(0,0,0,0.5)),radial-gradient(circle_at_54%_32%,rgba(201,164,106,0.18),transparent_36%)]" />
-                    <div className="absolute inset-0 opacity-[0.1] mix-blend-screen [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.42)_0_1px,transparent_1px)] [background-size:10px_10px]" />
                   </div>
                   <div className="mt-4 flex items-start justify-between gap-4 border-t border-white/10 pt-4">
                     <div>
@@ -204,7 +198,7 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
               ))}
             </div>
           ) : (
-            <div className="columns-1 gap-12 md:columns-2 xl:columns-3">
+            <div className="grid grid-cols-1 gap-x-12 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
               {visibleSeries.map((series, index) => {
                 const coverPhoto = getSeriesCoverPhoto(series, photos);
                 const category = categories.find(
@@ -216,23 +210,18 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
                     key={series.id}
                     type="button"
                     onClick={() => router.push(`/gallery/${series.slug}`)}
-                    className={[
-                      "group mb-14 block w-full break-inside-avoid text-left",
-                      index % 4 === 1 ? "pt-12" : "",
-                      index % 6 === 3 ? "pt-20" : "",
-                    ].join(" ")}
+                    className="group block w-full text-left"
                   >
                     <div
                       className="relative overflow-hidden border border-white/10 bg-[#111] transition duration-500 group-hover:brightness-110"
-                      style={{ aspectRatio: coverPhoto?.aspectRatio ?? "4/5" }}
+                      style={{ aspectRatio: "4 / 5" }}
                     >
                       <div
-                        className="absolute inset-0 bg-cover bg-center"
+                        className="absolute inset-0 bg-contain bg-center bg-no-repeat"
                         style={{
                           backgroundImage: `url(${coverPhoto?.imageUrl ?? "/1.jpg"})`,
                         }}
                       />
-                      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(243,238,230,0.12),rgba(243,238,230,0.02)_42%,rgba(0,0,0,0.56)),radial-gradient(circle_at_54%_32%,rgba(201,164,106,0.2),transparent_36%)]" />
                       <div className="absolute left-5 top-5 text-[0.62rem] uppercase tracking-[0.24em] text-[rgba(243,238,230,0.58)]">
                         Series {String(index + 1).padStart(2, "0")}
                       </div>

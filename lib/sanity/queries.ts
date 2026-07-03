@@ -22,8 +22,8 @@ export const projectsQuery = /* groq */ `
     _id,
     title,
     "slug": slug.current,
-    coverImage,
-    galleryImages,
+    coverImage{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}},
+    galleryImages[]{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}},
     categories[]->{
       _id,
       title,
@@ -64,7 +64,7 @@ export const homepageCarouselQuery = /* groq */ `
         _id,
         title,
         "slug": slug.current,
-        galleryImages
+        galleryImages[]{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}}
       }
     }
   }
@@ -75,8 +75,8 @@ export const projectBySlugQuery = /* groq */ `
     _id,
     title,
     "slug": slug.current,
-    coverImage,
-    galleryImages,
+    coverImage{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}},
+    galleryImages[]{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}},
     categories[]->{
       _id,
       title,

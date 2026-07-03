@@ -31,7 +31,7 @@ export type GalleryPhoto = {
   featuredOnHome: boolean;
   homeOrder: number;
   description: string;
-  aspectRatio: "3/4" | "4/5" | "5/4" | "1/1" | "2/3";
+  aspectRatio: string;
   collaborator: string;
   category: GalleryCategoryId;
   src: string;

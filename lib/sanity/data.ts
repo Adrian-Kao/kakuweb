@@ -109,6 +109,24 @@ function getProjectImages(project: SanityProject): SanityProjectImage[] {
   return cover ? [cover, ...otherImages] : images;
 }
 
+function getImageAspectRatio(image: SanityProjectImage) {
+  const dimensions = image.asset?.metadata?.dimensions;
+
+  if (
+    dimensions?.aspectRatio &&
+    Number.isFinite(dimensions.aspectRatio) &&
+    dimensions.aspectRatio > 0
+  ) {
+    return `${dimensions.aspectRatio} / 1`;
+  }
+
+  if (dimensions?.width && dimensions.height) {
+    return `${dimensions.width} / ${dimensions.height}`;
+  }
+
+  return "4 / 5";
+}
+
 function mapProjectToPhotos(
   project: SanityProject,
   fallbackCategoryId: GalleryCategoryId,
@@ -130,16 +148,17 @@ function mapProjectToPhotos(
     }
 
     const number = index + 1;
+    const title =
+      index === 0
+        ? project.title
+        : `${project.title} / Frame ${String(number).padStart(2, "0")}`;
 
     return {
       id: item._key ? `${project.slug}-${item._key}` : `${project.slug}-${number}`,
-      title:
-        index === 0
-          ? project.title
-          : item.caption || `${project.title} / Frame ${String(number).padStart(2, "0")}`,
+      title,
       year: project.shootingDate?.slice(0, 4) ?? "",
       imageUrl,
-      alt: item.alt || project.title,
+      alt: item.alt || title,
       categoryId,
       categoryName,
       seriesId: project._id,
@@ -148,7 +167,7 @@ function mapProjectToPhotos(
       featuredOnHome: false,
       homeOrder: 0,
       description: project.description ?? "",
-      aspectRatio: "4/5",
+      aspectRatio: getImageAspectRatio(item),
       collaborator: project.location ?? "KAKU Photography",
       category: categoryId,
       src: imageUrl,

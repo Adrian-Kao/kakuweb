@@ -80,6 +80,7 @@ export default function PhotoFileExplorer() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
+  const [previewImage, setPreviewImage] = useState<ProjectImageDoc | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState("");
@@ -638,7 +639,7 @@ export default function PhotoFileExplorer() {
                     key={image._key ?? index}
                     type="button"
                     className="kaku-photo-card"
-                    onClick={() => setCover(selectedProject, image)}
+                    onClick={() => setPreviewImage(image)}
                   >
                     {imageUrl(image) ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -659,6 +660,54 @@ export default function PhotoFileExplorer() {
           )}
         </section>
       </main>
+
+      {selectedProject && previewImage ? (
+        <div
+          className="kaku-image-preview-backdrop"
+          role="presentation"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="kaku-image-preview-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Image preview"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="kaku-preview-close"
+              aria-label="Close preview"
+              onClick={() => setPreviewImage(null)}
+            >
+              ×
+            </button>
+            <div className="kaku-image-preview-media">
+              {imageUrl(previewImage) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageUrl(previewImage)} alt={previewImage.caption ?? ""} />
+              ) : (
+                <div className="kaku-image-missing">No image</div>
+              )}
+            </div>
+            <div className="kaku-preview-actions">
+              <div>
+                <strong>{previewImage.caption || "作品照片"}</strong>
+                <span>先確認照片，再設定為作品集封面。</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  void setCover(selectedProject, previewImage);
+                  setPreviewImage(null);
+                }}
+              >
+                設為作品集封面
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <input
         ref={fileInputRef}
@@ -1076,6 +1125,103 @@ export default function PhotoFileExplorer() {
           font-size: 12px;
           font-style: normal;
           padding-bottom: 10px;
+        }
+
+        .kaku-image-preview-backdrop {
+          align-items: center;
+          background: rgba(5,5,5,0.82);
+          backdrop-filter: blur(14px);
+          display: flex;
+          inset: 0;
+          justify-content: center;
+          padding: 32px;
+          position: fixed;
+          z-index: 1000;
+        }
+
+        .kaku-image-preview-dialog {
+          background: #101218;
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 16px;
+          box-shadow: 0 32px 120px rgba(0,0,0,0.72);
+          max-height: calc(100vh - 64px);
+          max-width: min(1120px, calc(100vw - 64px));
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+        }
+
+        .kaku-preview-close {
+          align-items: center;
+          background: rgba(5,5,5,0.68);
+          border: 1px solid rgba(255,255,255,0.18);
+          border-radius: 999px;
+          color: #f4f0e8;
+          cursor: pointer;
+          display: flex;
+          font-size: 30px;
+          height: 44px;
+          justify-content: center;
+          line-height: 1;
+          position: absolute;
+          right: 16px;
+          top: 16px;
+          width: 44px;
+          z-index: 2;
+        }
+
+        .kaku-image-preview-media {
+          align-items: center;
+          background: #050505;
+          display: flex;
+          justify-content: center;
+          min-height: 420px;
+        }
+
+        .kaku-image-preview-media img {
+          display: block;
+          max-height: calc(100vh - 210px);
+          max-width: 100%;
+          object-fit: contain;
+          width: auto;
+        }
+
+        .kaku-preview-actions {
+          align-items: center;
+          display: flex;
+          gap: 20px;
+          justify-content: space-between;
+          padding: 18px 22px;
+        }
+
+        .kaku-preview-actions strong,
+        .kaku-preview-actions span {
+          display: block;
+        }
+
+        .kaku-preview-actions strong {
+          font-size: 18px;
+          margin-bottom: 4px;
+          max-width: 620px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .kaku-preview-actions span {
+          color: rgba(244,240,232,0.58);
+          font-size: 14px;
+        }
+
+        .kaku-preview-actions button {
+          background: #6266ff;
+          border: 1px solid #6266ff;
+          border-radius: 10px;
+          color: #fff;
+          cursor: pointer;
+          flex: 0 0 auto;
+          font: inherit;
+          padding: 12px 18px;
         }
 
         .kaku-empty {

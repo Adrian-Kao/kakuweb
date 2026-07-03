@@ -6,10 +6,19 @@ export type SanityImageSource =
         _ref?: string;
         _id?: string;
         url?: string;
+        metadata?: SanityImageMetadata;
       };
       crop?: Record<string, number>;
       hotspot?: Record<string, number>;
     };
+
+export type SanityImageMetadata = {
+  dimensions?: {
+    width?: number;
+    height?: number;
+    aspectRatio?: number;
+  };
+};
 
 export type SanityCategory = {
   _id: string;
@@ -56,6 +65,7 @@ export type SanityProjectImage = {
     _ref?: string;
     _id?: string;
     url?: string;
+    metadata?: SanityImageMetadata;
   };
   crop?: Record<string, number>;
   hotspot?: Record<string, number>;
