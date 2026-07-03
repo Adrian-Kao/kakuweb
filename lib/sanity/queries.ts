@@ -58,6 +58,7 @@ export const homepageCarouselQuery = /* groq */ `
       _key,
       selectedImageKey,
       isVisible,
+      crop,
       project->{
         _id,
         title,

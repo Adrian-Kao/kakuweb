@@ -10,6 +10,24 @@ type HomeSlideshowBackgroundProps = {
   slides?: HomeSlide[];
 };
 
+function getCropBackgroundStyle(slide: HomeSlide) {
+  if (!slide.crop) {
+    return {
+      backgroundImage: `url(${slide.src})`,
+    };
+  }
+
+  const maxX = Math.max(100 - slide.crop.width, 1);
+  const maxY = Math.max(100 - slide.crop.height, 1);
+
+  return {
+    backgroundImage: `url(${slide.src})`,
+    backgroundPosition: `${(slide.crop.x / maxX) * 100}% ${(slide.crop.y / maxY) * 100}%`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: `${10000 / slide.crop.width}% auto`,
+  };
+}
+
 export default function HomeSlideshowBackground({
   dimmed = false,
   slides = [],
@@ -66,7 +84,7 @@ export default function HomeSlideshowBackground({
             "absolute inset-0 bg-cover bg-center transition-opacity duration-[1600ms] ease-out",
             index === displayedActiveIndex ? (dimmed ? "opacity-45" : "opacity-100") : "opacity-0",
           ].join(" ")}
-          style={{ backgroundImage: `url(${slide.src})` }}
+          style={getCropBackgroundStyle(slide)}
         />
       ))}
 

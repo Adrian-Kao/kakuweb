@@ -1,14 +1,22 @@
 ﻿"use client";
 
-import type { CSSProperties } from "react";
-import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties, PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { set, useClient } from "sanity";
+
+type CarouselCrop = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 type CarouselItemValue = {
   _key?: string;
   _type?: "carouselItem";
   selectedImageKey?: string;
   isVisible?: boolean;
+  crop?: CarouselCrop;
   project?: {
     _type?: "reference";
     _ref?: string;
@@ -52,6 +60,18 @@ type HomepageCarouselPreviewInputProps = {
   readOnly?: boolean;
 };
 
+type PendingSelection = {
+  project: ProjectPreview;
+  image: ProjectImage;
+};
+
+type CropDragState = {
+  type: "move" | "nw" | "ne" | "sw" | "se";
+  startX: number;
+  startY: number;
+  startCrop: CarouselCrop;
+};
+
 function makeKey() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID().replace(/-/g, "");
@@ -72,6 +92,62 @@ function getImageLabel(image?: ProjectImage | null, index = 0) {
   return image?.caption || image?.asset?.originalFilename || `照片 ${index + 1}`;
 }
 
+function getDefaultCrop(): CarouselCrop {
+  return {
+    x: 5,
+    y: 22,
+    width: 90,
+    height: 50.625,
+  };
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeCrop(crop: CarouselCrop): CarouselCrop {
+  const width = clamp(crop.width, 24, 100);
+  const height = width * 9 / 16;
+  const clampedHeight = clamp(height, 13.5, 100);
+  const clampedWidth = clampedHeight * 16 / 9;
+
+  return {
+    x: clamp(crop.x, 0, 100 - clampedWidth),
+    y: clamp(crop.y, 0, 100 - clampedHeight),
+    width: clampedWidth,
+    height: clampedHeight,
+  };
+}
+
+function roundCrop(crop: CarouselCrop): CarouselCrop {
+  return {
+    x: Math.round(crop.x * 100) / 100,
+    y: Math.round(crop.y * 100) / 100,
+    width: Math.round(crop.width * 100) / 100,
+    height: Math.round(crop.height * 100) / 100,
+  };
+}
+
+function getCroppedImageStyle(crop?: CarouselCrop): CSSProperties {
+  if (!crop) {
+    return carouselImageStyle;
+  }
+
+  return {
+    display: "block",
+    height: "auto",
+    transform: `translate(-${crop.x}%, -${crop.y}%)`,
+    width: `${10000 / crop.width}%`,
+  };
+}
+
+function getCroppedFrameStyle(crop?: CarouselCrop): CSSProperties {
+  return {
+    ...carouselImageFrameStyle,
+    aspectRatio: crop ? `${crop.width} / ${crop.height}` : "16 / 9",
+  };
+}
+
 export default function HomepageCarouselPreviewInput({
   value,
   onChange,
@@ -87,6 +163,11 @@ export default function HomepageCarouselPreviewInput({
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [pendingSelection, setPendingSelection] = useState<PendingSelection | null>(null);
+  const [isCropMode, setIsCropMode] = useState(false);
+  const [cropValue, setCropValue] = useState<CarouselCrop>(getDefaultCrop);
+  const [cropDragState, setCropDragState] = useState<CropDragState | null>(null);
+  const cropStageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -131,6 +212,31 @@ export default function HomepageCarouselPreviewInput({
       isCancelled = true;
     };
   }, [client]);
+
+  useEffect(() => {
+    if (!cropDragState) {
+      return;
+    }
+
+    function handlePointerMove(event: globalThis.PointerEvent) {
+      updateCropFromPointer(event.clientX, event.clientY);
+    }
+
+    function handlePointerUp() {
+      setCropDragState(null);
+    }
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cropDragState]);
 
   const parentCategories = useMemo(
     () => categories.filter((category) => !category.parentCategory),
@@ -211,6 +317,13 @@ export default function HomepageCarouselPreviewInput({
     onChange(set(nextItems));
   }
 
+  function closeSelectionModal() {
+    setPendingSelection(null);
+    setIsCropMode(false);
+    setCropDragState(null);
+    setCropValue(getDefaultCrop());
+  }
+
   function toggleCategory(categoryId: string) {
     setExpandedCategoryIds((current) =>
       current.includes(categoryId)
@@ -221,7 +334,7 @@ export default function HomepageCarouselPreviewInput({
     setSelectedCategoryId(categoryId);
   }
 
-  function addImage(project: ProjectPreview, image: ProjectImage) {
+  function addImage(project: ProjectPreview, image: ProjectImage, crop?: CarouselCrop) {
     if (!image._key || readOnly === true) {
       return;
     }
@@ -242,8 +355,94 @@ export default function HomepageCarouselPreviewInput({
         project: { _type: "reference", _ref: project._id },
         selectedImageKey: image._key,
         isVisible: true,
+        ...(crop ? { crop: roundCrop(crop) } : {}),
       },
     ]);
+  }
+
+  function addPendingOriginal() {
+    if (!pendingSelection) {
+      return;
+    }
+
+    addImage(pendingSelection.project, pendingSelection.image);
+    closeSelectionModal();
+  }
+
+  function addPendingCrop() {
+    if (!pendingSelection) {
+      return;
+    }
+
+    addImage(pendingSelection.project, pendingSelection.image, cropValue);
+    closeSelectionModal();
+  }
+
+  function startCropMode() {
+    setCropValue(getDefaultCrop());
+    setIsCropMode(true);
+  }
+
+  function updateCropFromPointer(clientX: number, clientY: number) {
+    if (!cropDragState || !cropStageRef.current) {
+      return;
+    }
+
+    const rect = cropStageRef.current.getBoundingClientRect();
+    const dx = ((clientX - cropDragState.startX) / rect.width) * 100;
+    const dy = ((clientY - cropDragState.startY) / rect.height) * 100;
+    const start = cropDragState.startCrop;
+
+    if (cropDragState.type === "move") {
+      setCropValue(
+        normalizeCrop({
+          ...start,
+          x: start.x + dx,
+          y: start.y + dy,
+        }),
+      );
+      return;
+    }
+
+    const minWidth = 24;
+    let nextWidth = start.width;
+    let nextX = start.x;
+    let nextY = start.y;
+
+    if (cropDragState.type === "se" || cropDragState.type === "ne") {
+      nextWidth = clamp(start.width + dx, minWidth, 100 - start.x);
+    } else {
+      nextWidth = clamp(start.width - dx, minWidth, start.x + start.width);
+      nextX = start.x + start.width - nextWidth;
+    }
+
+    const nextHeight = nextWidth * 9 / 16;
+
+    if (cropDragState.type === "sw" || cropDragState.type === "se") {
+      nextY = clamp(start.y, 0, 100 - nextHeight);
+    } else {
+      nextY = start.y + start.height - nextHeight;
+    }
+
+    setCropValue(
+      normalizeCrop({
+        x: nextX,
+        y: nextY,
+        width: nextWidth,
+        height: nextHeight,
+      }),
+    );
+  }
+
+  function startCropDrag(type: CropDragState["type"], event: PointerEvent) {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setCropDragState({
+      type,
+      startX: event.clientX,
+      startY: event.clientY,
+      startCrop: cropValue,
+    });
   }
 
   function removeItem(index: number) {
@@ -296,8 +495,10 @@ export default function HomepageCarouselPreviewInput({
                   {String(visualIndex + 1).padStart(2, "0")}
                 </span>
 
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
+                <div style={getCroppedFrameStyle(item.crop)}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={getImageUrl(image)} alt="" style={getCroppedImageStyle(item.crop)} />
+                </div>
 
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
@@ -344,8 +545,10 @@ export default function HomepageCarouselPreviewInput({
                   {String(visualIndex + 1).padStart(2, "0")}
                 </span>
 
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
+                <div style={getCroppedFrameStyle(item.crop)}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={getImageUrl(image)} alt="" style={getCroppedImageStyle(item.crop)} />
+                </div>
 
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
@@ -536,7 +739,8 @@ export default function HomepageCarouselPreviewInput({
                   }}
                   onClick={() => {
                     if (selectedProject) {
-                      addImage(selectedProject, image);
+                      setPendingSelection({ project: selectedProject, image });
+                      setIsCropMode(false);
                     }
                   }}
                 >
@@ -554,6 +758,78 @@ export default function HomepageCarouselPreviewInput({
           </div>
         </div>
       </section>
+
+      {pendingSelection ? (
+        <div
+          style={modalBackdropStyle}
+          onPointerMove={(event) => updateCropFromPointer(event.clientX, event.clientY)}
+          onPointerUp={() => setCropDragState(null)}
+          onPointerCancel={() => setCropDragState(null)}
+        >
+          <div style={modalPanelStyle} onClick={(event) => event.stopPropagation()}>
+            <div style={modalHeaderStyle}>
+              <strong>{getProjectTitle(pendingSelection.project)}</strong>
+              <span>{getImageLabel(pendingSelection.image)}</span>
+            </div>
+
+            {isCropMode ? (
+              <div ref={cropStageRef} style={cropStageStyle}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(pendingSelection.image)} alt="" style={modalImageStyle} />
+                <div
+                  style={{
+                    ...cropBoxStyle,
+                    left: `${cropValue.x}%`,
+                    top: `${cropValue.y}%`,
+                    width: `${cropValue.width}%`,
+                    height: `${cropValue.height}%`,
+                  }}
+                  onPointerDown={(event) => startCropDrag("move", event)}
+                >
+                  {(["nw", "ne", "sw", "se"] as const).map((handle) => (
+                    <span
+                      key={handle}
+                      style={{ ...cropHandleStyle, ...cropHandlePositionStyles[handle] }}
+                      onPointerDown={(event) => startCropDrag(handle, event)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={modalPreviewFrameStyle}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(pendingSelection.image)} alt="" style={modalImageStyle} />
+              </div>
+            )}
+
+            <div style={modalActionsStyle}>
+              <button type="button" style={ghostButtonStyle} onClick={closeSelectionModal}>
+                取消
+              </button>
+
+              {isCropMode ? (
+                <>
+                  <button type="button" style={ghostButtonStyle} onClick={() => setIsCropMode(false)}>
+                    重新選擇
+                  </button>
+                  <button type="button" style={primaryButtonStyle} onClick={addPendingCrop}>
+                    確認輪播
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" style={ghostButtonStyle} onClick={startCropMode}>
+                    裁切
+                  </button>
+                  <button type="button" style={primaryButtonStyle} onClick={addPendingOriginal}>
+                    加入輪播
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -664,6 +940,12 @@ const carouselNumberStyle: CSSProperties = {
 const carouselImageStyle: CSSProperties = {
   display: "block",
   height: "auto",
+  width: "100%",
+};
+
+const carouselImageFrameStyle: CSSProperties = {
+  background: "rgba(5,5,5,0.42)",
+  overflow: "hidden",
   width: "100%",
 };
 
@@ -949,6 +1231,106 @@ const selectedCaptionStyle: CSSProperties = {
   color: "#c9a46a",
 };
 
+const modalBackdropStyle: CSSProperties = {
+  alignItems: "center",
+  background: "rgba(5,5,5,0.84)",
+  bottom: 0,
+  boxSizing: "border-box",
+  display: "flex",
+  justifyContent: "center",
+  left: 0,
+  padding: 32,
+  position: "fixed",
+  right: 0,
+  top: 0,
+  zIndex: 5000,
+};
+
+const modalPanelStyle: CSSProperties = {
+  background: "rgba(15,15,17,0.96)",
+  border: "1px solid rgba(255,255,255,0.14)",
+  borderRadius: 18,
+  boxShadow: "0 24px 80px rgba(0,0,0,0.55)",
+  boxSizing: "border-box",
+  color: "#f4f0e8",
+  display: "grid",
+  gap: 18,
+  maxHeight: "92vh",
+  maxWidth: 980,
+  overflow: "hidden",
+  padding: 18,
+  width: "min(980px, 100%)",
+};
+
+const modalHeaderStyle: CSSProperties = {
+  alignItems: "baseline",
+  display: "flex",
+  gap: 12,
+  justifyContent: "space-between",
+  minWidth: 0,
+};
+
+const modalPreviewFrameStyle: CSSProperties = {
+  alignItems: "center",
+  background: "rgba(255,255,255,0.035)",
+  borderRadius: 12,
+  display: "flex",
+  justifyContent: "center",
+  maxHeight: "68vh",
+  overflow: "auto",
+};
+
+const modalImageStyle: CSSProperties = {
+  display: "block",
+  height: "auto",
+  maxHeight: "68vh",
+  maxWidth: "100%",
+  userSelect: "none",
+  width: "100%",
+};
+
+const cropStageStyle: CSSProperties = {
+  background: "rgba(255,255,255,0.035)",
+  borderRadius: 12,
+  maxHeight: "68vh",
+  overflow: "hidden",
+  position: "relative",
+  touchAction: "none",
+  width: "100%",
+};
+
+const cropBoxStyle: CSSProperties = {
+  border: "2px solid #c9a46a",
+  boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+  boxSizing: "border-box",
+  cursor: "move",
+  position: "absolute",
+};
+
+const cropHandleStyle: CSSProperties = {
+  background: "#c9a46a",
+  border: "2px solid #1c140c",
+  borderRadius: 999,
+  boxSizing: "border-box",
+  height: 18,
+  position: "absolute",
+  width: 18,
+};
+
+const cropHandlePositionStyles: Record<CropDragState["type"], CSSProperties> = {
+  move: {},
+  nw: { cursor: "nwse-resize", left: -10, top: -10 },
+  ne: { cursor: "nesw-resize", right: -10, top: -10 },
+  sw: { bottom: -10, cursor: "nesw-resize", left: -10 },
+  se: { bottom: -10, cursor: "nwse-resize", right: -10 },
+};
+
+const modalActionsStyle: CSSProperties = {
+  display: "flex",
+  gap: 10,
+  justifyContent: "flex-end",
+};
+
 const ghostButtonStyle: CSSProperties = {
   background: "rgba(255,255,255,0.06)",
   border: "1px solid rgba(255,255,255,0.14)",
@@ -956,6 +1338,14 @@ const ghostButtonStyle: CSSProperties = {
   color: "#f4f0e8",
   cursor: "pointer",
   padding: "7px 10px",
+};
+
+const primaryButtonStyle: CSSProperties = {
+  ...ghostButtonStyle,
+  background: "#c9a46a",
+  border: "1px solid #c9a46a",
+  color: "#1c140c",
+  fontWeight: 700,
 };
 
 const removeButtonStyle: CSSProperties = {

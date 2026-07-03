@@ -80,12 +80,20 @@ export type SanityHomepageCarousel = {
   carouselItems?: SanityCarouselItem[];
 };
 
+export type CarouselCrop = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type SanityCarouselItem = {
   _key?: string;
   caption?: string;
   selectedImageKey?: string;
   order?: number;
   isVisible?: boolean;
+  crop?: CarouselCrop;
   project?: {
     _id: string;
     title: string;
@@ -99,4 +107,5 @@ export type HomeSlide = {
   src: string;
   title?: string;
   slug?: string;
+  crop?: CarouselCrop;
 };

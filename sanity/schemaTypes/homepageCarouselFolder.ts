@@ -23,6 +23,18 @@ export const carouselItemType = defineType({
       type: "boolean",
       initialValue: true,
     }),
+    defineField({
+      name: "crop",
+      title: "首頁輪播裁切",
+      type: "object",
+      hidden: true,
+      fields: [
+        defineField({ name: "x", title: "X", type: "number" }),
+        defineField({ name: "y", title: "Y", type: "number" }),
+        defineField({ name: "width", title: "寬度", type: "number" }),
+        defineField({ name: "height", title: "高度", type: "number" }),
+      ],
+    }),
   ],
   preview: {
     select: {

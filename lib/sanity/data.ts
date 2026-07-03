@@ -228,6 +228,7 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
       src: imageUrl,
       title: slide.caption ?? slide.project?.title,
       slug: slide.project?.slug,
+      crop: slide.crop,
     };
   });
 
