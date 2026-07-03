@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { set, useClient } from "sanity";
+import { set, useClient, useFormValue } from "sanity";
 
 type CarouselItemValue = {
   _key?: string;
@@ -76,6 +76,7 @@ export default function HomepageCarouselPreviewInput({
   onChange,
 }: HomepageCarouselPreviewInputProps) {
   const client = useClient({ apiVersion: "2025-01-01" });
+  const documentId = useFormValue(["_id"]);
   const items = useMemo(() => value ?? [], [value]);
 
   const [categories, setCategories] = useState<CategoryPreview[]>([]);
@@ -198,6 +199,10 @@ export default function HomepageCarouselPreviewInput({
     return [{ item, index, project, image }];
   });
 
+  const isPublishedView =
+    typeof documentId === "string" && !documentId.startsWith("drafts.");
+  const visiblePublishedItems = selectedItems.filter(({ item }) => item.isVisible !== false);
+
   function updateItems(nextItems: CarouselItemValue[]) {
     onChange(set(nextItems));
   }
@@ -258,6 +263,42 @@ export default function HomepageCarouselPreviewInput({
     const [moved] = nextItems.splice(fromIndex, 1);
     nextItems.splice(toIndex, 0, moved);
     updateItems(nextItems);
+  }
+
+  if (isPublishedView) {
+    return (
+      <div style={publishedShellStyle}>
+        <div style={sectionHeaderStyle}>
+          <strong>目前已發布輪播順序</strong>
+          <span>Published 只顯示網站正在使用的版本</span>
+        </div>
+
+        {visiblePublishedItems.length > 0 ? (
+          <div style={publishedTrackStyle}>
+            {visiblePublishedItems.map(({ item, project, image }, visualIndex) => (
+              <article
+                key={item._key ?? `${project._id}-${image._key}`}
+                style={publishedCardStyle}
+              >
+                <span style={carouselNumberStyle}>
+                  {String(visualIndex + 1).padStart(2, "0")}
+                </span>
+
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
+
+                <div style={carouselMetaStyle}>
+                  <strong>{getProjectTitle(project)}</strong>
+                  <span>{getImageLabel(image, visualIndex)}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div style={emptyCarouselStyle}>目前 Published 版本沒有顯示中的首頁輪播照片。</div>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -520,6 +561,16 @@ const shellStyle: CSSProperties = {
   paddingBottom: 12,
 };
 
+const publishedShellStyle: CSSProperties = {
+  boxSizing: "border-box",
+  display: "grid",
+  gap: 14,
+  maxWidth: "100%",
+  overflowX: "hidden",
+  paddingBottom: 12,
+  width: "100%",
+};
+
 const sectionHeaderStyle: CSSProperties = {
   alignItems: "baseline",
   color: "#f4f0e8",
@@ -527,6 +578,30 @@ const sectionHeaderStyle: CSSProperties = {
   gap: 10,
   letterSpacing: "0.04em",
   marginBottom: 14,
+};
+
+const publishedTrackStyle: CSSProperties = {
+  boxSizing: "border-box",
+  display: "grid",
+  gap: 18,
+  gridAutoColumns: "minmax(210px, 250px)",
+  gridAutoFlow: "column",
+  maxWidth: "100%",
+  overflowX: "auto",
+  padding: "4px 2px 18px",
+  scrollbarColor: "rgba(201,164,106,0.72) rgba(255,255,255,0.08)",
+  width: "100%",
+};
+
+const publishedCardStyle: CSSProperties = {
+  background: "linear-gradient(180deg, rgba(201,164,106,0.11), rgba(255,255,255,0.025))",
+  border: "1px solid rgba(201,164,106,0.35)",
+  borderRadius: 10,
+  boxSizing: "border-box",
+  minWidth: 0,
+  overflow: "hidden",
+  position: "relative",
+  width: "100%",
 };
 
 const carouselSectionStyle: CSSProperties = {
