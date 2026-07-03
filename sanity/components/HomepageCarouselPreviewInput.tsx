@@ -467,7 +467,9 @@ export default function HomepageCarouselPreviewInput({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={getImageUrl(image)} alt="" style={imageStyle} />
                   ) : null}
-                  <span>{isSelected ? "已加入輪播" : "加入輪播"}</span>
+                  <span style={imageCaptionStyle}>
+                    {isSelected ? "已加入輪播" : "加入輪播"}
+                  </span>
                 </button>
               );
             })}
@@ -628,6 +630,8 @@ const projectDotStyle: CSSProperties = {
 };
 
 const browserStyle: CSSProperties = {
+  boxSizing: "border-box",
+  maxWidth: "100%",
   minWidth: 0,
   overflow: "hidden",
 };
@@ -697,11 +701,19 @@ const imagePickerHeaderStyle: CSSProperties = {
 };
 
 const imageGridStyle: CSSProperties = {
+  boxSizing: "border-box",
   display: "grid",
-  gap: 18,
-  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 340px))",
+  gap: 12,
+  gridAutoRows: 164,
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
   justifyContent: "start",
   marginTop: 14,
+  maxHeight: 516,
+  minHeight: 516,
+  overflowX: "hidden",
+  overflowY: "auto",
+  paddingRight: 10,
+  width: "100%",
 };
 
 const imageButtonStyle: CSSProperties = {
@@ -710,6 +722,9 @@ const imageButtonStyle: CSSProperties = {
   borderRadius: 18,
   color: "#f4f0e8",
   cursor: "pointer",
+  display: "grid",
+  gridTemplateRows: "1fr 34px",
+  height: 164,
   overflow: "hidden",
   padding: 0,
   textAlign: "left",
@@ -721,12 +736,23 @@ const selectedImageStyle: CSSProperties = {
 };
 
 const imageStyle: CSSProperties = {
-  aspectRatio: "4 / 3",
   background: "#111",
   display: "block",
-  height: "clamp(180px, 18vw, 250px)",
+  height: "100%",
+  minHeight: 0,
   objectFit: "contain",
   width: "100%",
+};
+
+const imageCaptionStyle: CSSProperties = {
+  alignItems: "center",
+  background: "rgba(5,5,5,0.42)",
+  display: "flex",
+  fontSize: 13,
+  height: 34,
+  overflow: "hidden",
+  padding: "0 10px",
+  whiteSpace: "nowrap",
 };
 
 const ghostButtonStyle: CSSProperties = {
