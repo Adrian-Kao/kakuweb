@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { set, useClient, useFormValue } from "sanity";
+import { set, useClient } from "sanity";
 
 type CarouselItemValue = {
   _key?: string;
@@ -49,6 +49,7 @@ type ProjectPreview = {
 type HomepageCarouselPreviewInputProps = {
   value?: CarouselItemValue[];
   onChange: (patch: unknown) => void;
+  readOnly?: boolean;
 };
 
 function makeKey() {
@@ -74,9 +75,9 @@ function getImageLabel(image?: ProjectImage | null, index = 0) {
 export default function HomepageCarouselPreviewInput({
   value,
   onChange,
+  readOnly,
 }: HomepageCarouselPreviewInputProps) {
   const client = useClient({ apiVersion: "2025-01-01" });
-  const documentId = useFormValue(["_id"]);
   const items = useMemo(() => value ?? [], [value]);
 
   const [categories, setCategories] = useState<CategoryPreview[]>([]);
@@ -199,11 +200,14 @@ export default function HomepageCarouselPreviewInput({
     return [{ item, index, project, image }];
   });
 
-  const isPublishedView =
-    typeof documentId === "string" && !documentId.startsWith("drafts.");
+  const isPublishedView = readOnly === true;
   const visiblePublishedItems = selectedItems.filter(({ item }) => item.isVisible !== false);
 
   function updateItems(nextItems: CarouselItemValue[]) {
+    if (readOnly === true) {
+      return;
+    }
+
     onChange(set(nextItems));
   }
 
@@ -218,7 +222,7 @@ export default function HomepageCarouselPreviewInput({
   }
 
   function addImage(project: ProjectPreview, image: ProjectImage) {
-    if (!image._key) {
+    if (!image._key || readOnly === true) {
       return;
     }
 
@@ -243,10 +247,18 @@ export default function HomepageCarouselPreviewInput({
   }
 
   function removeItem(index: number) {
+    if (readOnly === true) {
+      return;
+    }
+
     updateItems(items.filter((_, itemIndex) => itemIndex !== index));
   }
 
   function toggleVisible(index: number) {
+    if (readOnly === true) {
+      return;
+    }
+
     updateItems(
       items.map((item, itemIndex) =>
         itemIndex === index ? { ...item, isVisible: item.isVisible === false } : item,
@@ -255,7 +267,7 @@ export default function HomepageCarouselPreviewInput({
   }
 
   function moveItem(fromIndex: number, toIndex: number) {
-    if (fromIndex === toIndex) {
+    if (readOnly === true || fromIndex === toIndex) {
       return;
     }
 
@@ -550,13 +562,9 @@ const shellStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 28,
-
-  // 吃回 Sanity 左側 label 欄位空間
-  marginLeft: -200,
+  marginLeft: -260,
   width: "calc(100% + 260px)",
   maxWidth: "calc(100% + 260px)",
-
-  // 防止右側超出
   overflowX: "hidden",
   paddingBottom: 12,
 };
@@ -565,10 +573,11 @@ const publishedShellStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 14,
-  maxWidth: "100%",
+  marginLeft: -260,
+  width: "calc(100% + 260px)",
+  maxWidth: "calc(100% + 260px)",
   overflowX: "hidden",
   paddingBottom: 12,
-  width: "100%",
 };
 
 const sectionHeaderStyle: CSSProperties = {
