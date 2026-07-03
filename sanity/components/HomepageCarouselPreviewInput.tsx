@@ -150,6 +150,22 @@ export default function HomepageCarouselPreviewInput({
     return map;
   }, [categories]);
 
+  const projectsByCategory = useMemo(() => {
+    const map = new Map<string, ProjectPreview[]>();
+
+    projects.forEach((project) => {
+      project.categories?.forEach((category) => {
+        if (!category?._id) {
+          return;
+        }
+
+        map.set(category._id, [...(map.get(category._id) ?? []), project]);
+      });
+    });
+
+    return map;
+  }, [projects]);
+
   const selectedProject = projects.find((project) => project._id === selectedProjectId) ?? null;
 
   const filteredProjects = useMemo(() => {
@@ -302,6 +318,7 @@ export default function HomepageCarouselPreviewInput({
 
           {parentCategories.map((parent) => {
             const children = childrenByParent.get(parent._id) ?? [];
+            const parentProjects = projectsByCategory.get(parent._id) ?? [];
             const isExpanded = expandedCategoryIds.includes(parent._id);
 
             return (
@@ -320,19 +337,64 @@ export default function HomepageCarouselPreviewInput({
 
                 {isExpanded ? (
                   <div style={childTreeStyle}>
-                    {children.map((child) => (
+                    {parentProjects.map((project) => (
                       <button
-                        key={child._id}
+                        key={project._id}
                         type="button"
                         style={{
-                          ...treeButtonStyle,
-                          ...(selectedCategoryId === child._id ? activeTreeStyle : {}),
+                          ...projectTreeButtonStyle,
+                          ...(selectedProjectId === project._id ? activeProjectTreeStyle : {}),
                         }}
-                        onClick={() => setSelectedCategoryId(child._id)}
+                        onClick={() => {
+                          setSelectedCategoryId(parent._id);
+                          setSelectedProjectId(project._id);
+                        }}
                       >
-                        <span>·</span>
-                        <span>{child.title || "未命名作品集分類"}</span>
+                        <span style={projectDotStyle} />
+                        <span>{getProjectTitle(project)}</span>
                       </button>
+                    ))}
+
+                    {children.map((child) => (
+                      <div key={child._id}>
+                        <button
+                          type="button"
+                          style={{
+                            ...treeButtonStyle,
+                            ...(selectedCategoryId === child._id ? activeTreeStyle : {}),
+                          }}
+                          onClick={() => toggleCategory(child._id)}
+                        >
+                          <span>
+                            {expandedCategoryIds.includes(child._id) ? "▾" : "▸"}
+                          </span>
+                          <span>{child.title || "未命名作品集分類"}</span>
+                        </button>
+
+                        {expandedCategoryIds.includes(child._id) ? (
+                          <div style={nestedTreeStyle}>
+                            {(projectsByCategory.get(child._id) ?? []).map((project) => (
+                              <button
+                                key={project._id}
+                                type="button"
+                                style={{
+                                  ...projectTreeButtonStyle,
+                                  ...(selectedProjectId === project._id
+                                    ? activeProjectTreeStyle
+                                    : {}),
+                                }}
+                                onClick={() => {
+                                  setSelectedCategoryId(child._id);
+                                  setSelectedProjectId(project._id);
+                                }}
+                              >
+                                <span style={projectDotStyle} />
+                                <span>{getProjectTitle(project)}</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
                 ) : null}
@@ -422,7 +484,10 @@ export default function HomepageCarouselPreviewInput({
 const shellStyle: CSSProperties = {
   display: "grid",
   gap: 28,
+  marginLeft: "50%",
   paddingBottom: 12,
+  transform: "translateX(-50%)",
+  width: "min(1480px, calc(100vw - 96px))",
 };
 
 const headerStyle: CSSProperties = {
@@ -514,15 +579,15 @@ const emptyCarouselStyle: CSSProperties = {
 
 const pickerStyle: CSSProperties = {
   display: "grid",
-  gap: 30,
-  gridTemplateColumns: "260px minmax(0, 1fr)",
+  gap: 36,
+  gridTemplateColumns: "340px minmax(0, 1fr)",
 };
 
 const treeStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 18,
   minHeight: 520,
-  padding: 16,
+  padding: 18,
 };
 
 const treeButtonStyle: CSSProperties = {
@@ -547,8 +612,43 @@ const activeTreeStyle: CSSProperties = {
 
 const childTreeStyle: CSSProperties = {
   borderLeft: "1px solid rgba(255,255,255,0.12)",
-  marginLeft: 16,
-  paddingLeft: 10,
+  marginLeft: 18,
+  paddingLeft: 12,
+};
+
+const nestedTreeStyle: CSSProperties = {
+  borderLeft: "1px solid rgba(255,255,255,0.1)",
+  marginLeft: 18,
+  paddingLeft: 12,
+};
+
+const projectTreeButtonStyle: CSSProperties = {
+  alignItems: "center",
+  background: "transparent",
+  border: 0,
+  borderRadius: 9,
+  color: "rgba(244,240,232,0.58)",
+  cursor: "pointer",
+  display: "flex",
+  gap: 10,
+  font: "inherit",
+  padding: "9px 12px",
+  textAlign: "left",
+  width: "100%",
+};
+
+const activeProjectTreeStyle: CSSProperties = {
+  background: "rgba(201,164,106,0.12)",
+  color: "#f4f0e8",
+};
+
+const projectDotStyle: CSSProperties = {
+  border: "1px solid rgba(201,164,106,0.74)",
+  borderRadius: 3,
+  display: "block",
+  flex: "0 0 auto",
+  height: 11,
+  width: 11,
 };
 
 const browserStyle: CSSProperties = {
@@ -622,7 +722,7 @@ const imagePickerHeaderStyle: CSSProperties = {
 const imageGridStyle: CSSProperties = {
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
   marginTop: 14,
 };
 
