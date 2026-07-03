@@ -573,7 +573,7 @@ const publishedShellStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 14,
-  marginLeft: -260,
+  marginLeft: -200,
   width: "calc(100% + 260px)",
   maxWidth: "calc(100% + 260px)",
   overflowX: "hidden",
