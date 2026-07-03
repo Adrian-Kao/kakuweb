@@ -484,10 +484,9 @@ export default function HomepageCarouselPreviewInput({
 const shellStyle: CSSProperties = {
   display: "grid",
   gap: 28,
-  marginLeft: "50%",
+  marginLeft: "calc((100vw - 120px - 100%) / -2)",
   paddingBottom: 12,
-  transform: "translateX(-50%)",
-  width: "min(1480px, calc(100vw - 96px))",
+  width: "calc(100vw - 120px)",
 };
 
 const headerStyle: CSSProperties = {
