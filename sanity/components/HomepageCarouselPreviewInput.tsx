@@ -349,7 +349,7 @@ export default function HomepageCarouselPreviewInput({
 
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
-                  <span>{getImageLabel(image, visualIndex)}</span>
+                  
                 </div>
 
                 <div style={carouselActionsStyle}>
