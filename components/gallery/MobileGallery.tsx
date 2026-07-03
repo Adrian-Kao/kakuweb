@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import type { GalleryPhoto } from "../../data/gallery";
 import type { GalleryData } from "../../lib/sanity/data";
 import MobileShell from "../mobile/MobileShell";
-import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
 
 const P5Sketch = dynamic(() => import("../P5Sketch"), {
   ssr: false,
@@ -41,7 +40,6 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
   const searchParams = useSearchParams();
   const { categories, series, photos } = data;
   const seriesSlug = forcedSeriesSlug ?? searchParams.get("series");
-  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const activeCategoryFromSlug = categories.find(
     (category) => category.id === `category-${seriesSlug}`,
@@ -57,30 +55,6 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
 
     return series.filter((item) => categoryScope.has(item.categoryId));
   }, [categories, effectiveCategoryId, series]);
-
-  const visiblePhotos = useMemo(() => {
-    if (effectiveCategoryId) {
-      const visibleSeriesIds = new Set(visibleSeries.map((series) => series.id));
-      return photos.filter((photo) => visibleSeriesIds.has(photo.seriesId));
-    }
-
-    return photos;
-  }, [effectiveCategoryId, photos, visibleSeries]);
-
-  const selectedIndex = selectedPhotoId
-    ? visiblePhotos.findIndex((photo) => photo.id === selectedPhotoId)
-    : -1;
-  const selectedPhoto = selectedIndex >= 0 ? visiblePhotos[selectedIndex] : null;
-
-  const moveViewer = (step: number) => {
-    if (selectedIndex < 0 || visiblePhotos.length === 0) {
-      return;
-    }
-
-    const nextIndex =
-      (selectedIndex + step + visiblePhotos.length) % visiblePhotos.length;
-    setSelectedPhotoId(visiblePhotos[nextIndex].id);
-  };
 
   useEffect(() => {
     if (!seriesSlug) {
@@ -182,7 +156,6 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
                       <MobileGalleryPhoto
                         key={photo.id}
                         photo={photo}
-                        onSelect={setSelectedPhotoId}
                       />
                     ))}
                   </div>
@@ -192,14 +165,6 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
           </div>
         </div>
 
-        {selectedPhoto ? (
-          <PhotoViewerOverlay
-            photo={selectedPhoto}
-            onClose={() => setSelectedPhotoId(null)}
-            onNext={() => moveViewer(1)}
-            onPrevious={() => moveViewer(-1)}
-          />
-        ) : null}
       </div>
     </MobileShell>
   );
@@ -207,19 +172,13 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
 
 function MobileGalleryPhoto({
   photo,
-  onSelect,
 }: {
   photo: GalleryPhoto;
-  onSelect: (photoId: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(photo.id)}
-      className="group block w-full text-left"
-    >
+    <article className="block w-full text-left">
       <div
-        className="relative overflow-hidden border border-white/10 bg-[#111] transition duration-500 group-hover:brightness-110"
+        className="relative overflow-hidden border border-white/10 bg-[#111]"
         style={{ aspectRatio: photo.aspectRatio }}
       >
         <div
@@ -234,6 +193,6 @@ function MobileGalleryPhoto({
           {photo.year} / {photo.categoryName} / {photo.seriesTitle}
         </p>
       </div>
-    </button>
+    </article>
   );
 }
