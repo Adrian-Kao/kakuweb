@@ -54,6 +54,13 @@ export const homepageCarouselType = defineType({
   type: "document",
   fields: [
     defineField({
+      name: "title",
+      title: "管理頁名稱",
+      type: "string",
+      hidden: true,
+      readOnly: true,
+    }),
+    defineField({
       name: "carouselItems",
       title: "首頁輪播照片",
       type: "array",
