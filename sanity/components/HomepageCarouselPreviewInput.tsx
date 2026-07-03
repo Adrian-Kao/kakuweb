@@ -287,7 +287,10 @@ export default function HomepageCarouselPreviewInput({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
 
-             
+                <div style={carouselMetaStyle}>
+                  <strong>{getProjectTitle(project)}</strong>
+                  <span>{getImageLabel(image, visualIndex)}</span>
+                </div>
               </article>
             ))}
           </div>
