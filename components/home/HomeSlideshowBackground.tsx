@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { HomeSlide } from "../../lib/sanity/types";
 
 const slideDuration = 5600;
@@ -13,26 +13,53 @@ type HomeSlideshowBackgroundProps = {
 export default function HomeSlideshowBackground({
   dimmed = false,
   slides = [],
-  }: HomeSlideshowBackgroundProps) {
+}: HomeSlideshowBackgroundProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const slideCount = slides.length;
+  const validSlides = useMemo(
+    () => slides.filter((slide) => slide.src),
+    [slides],
+  );
+  const slideCount = validSlides.length;
   const displayedActiveIndex = slideCount > 0 ? activeIndex % slideCount : 0;
+  const slideSignature = validSlides.map((slide) => slide.id).join("|");
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setActiveIndex(0), 0);
+
+    return () => window.clearTimeout(timeout);
+  }, [slideSignature]);
+
+  useEffect(() => {
+    if (slideCount === 0) {
+      return;
+    }
+
+    const nextSlide = validSlides[(displayedActiveIndex + 1) % slideCount];
+
+    if (!nextSlide?.src) {
+      return;
+    }
+
+    const image = new Image();
+    image.decoding = "async";
+    image.src = nextSlide.src;
+  }, [displayedActiveIndex, slideCount, validSlides]);
 
   useEffect(() => {
     if (slideCount <= 1) {
       return;
     }
 
-    const interval = window.setInterval(() => {
+    const timeout = window.setTimeout(() => {
       setActiveIndex((current) => (current + 1) % slideCount);
     }, slideDuration);
 
-    return () => window.clearInterval(interval);
-  }, [slideCount]);
+    return () => window.clearTimeout(timeout);
+  }, [activeIndex, slideCount]);
 
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      {slides.map((slide, index) => (
+      {validSlides.map((slide, index) => (
         <div
           key={slide.id}
           className={[

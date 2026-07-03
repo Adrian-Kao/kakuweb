@@ -52,7 +52,7 @@ export default function GalleryFilters({
               : "border-white/10 text-[rgba(243,238,230,0.48)] hover:text-[#f3eee6]",
           ].join(" ")}
         >
-          00 \u2014 All Work
+           All Work
         </button>
         {categories.map((category) => {
           const isActive = activeCategory === category.id;
@@ -78,7 +78,7 @@ export default function GalleryFilters({
 
       <div className="mt-7 max-w-xs">
         <p className="mb-4 text-xs uppercase tracking-[0.32em] text-[#c9a46a]">
-          Series
+          作品集
         </p>
         <nav
           aria-label="Gallery series"
