@@ -77,7 +77,6 @@ export default function HomepageCarouselPreviewInput({
 }: HomepageCarouselPreviewInputProps) {
   const client = useClient({ apiVersion: "2025-01-01" });
   const items = useMemo(() => value ?? [], [value]);
-
   const [categories, setCategories] = useState<CategoryPreview[]>([]);
   const [projects, setProjects] = useState<ProjectPreview[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -176,7 +175,6 @@ export default function HomepageCarouselPreviewInput({
       const matchesQuery = normalizedQuery
         ? getProjectTitle(project).toLowerCase().includes(normalizedQuery)
         : true;
-
       const matchesCategory = selectedCategoryId
         ? project.categories?.some((category) => category._id === selectedCategoryId)
         : true;
@@ -208,7 +206,6 @@ export default function HomepageCarouselPreviewInput({
         ? current.filter((id) => id !== categoryId)
         : [...current, categoryId],
     );
-
     setSelectedCategoryId(categoryId);
   }
 
@@ -262,10 +259,7 @@ export default function HomepageCarouselPreviewInput({
 
   return (
     <div style={shellStyle}>
-      <header style={headerStyle}>
-        <span style={eyebrowStyle}>Homepage Carousel</span>
-        <h2 style={titleStyle}>首頁輪播</h2>
-      </header>
+
 
       <section style={carouselSectionStyle}>
         {selectedItems.length > 0 ? (
@@ -280,41 +274,24 @@ export default function HomepageCarouselPreviewInput({
                   if (dragIndex !== null) {
                     moveItem(dragIndex, index);
                   }
-
                   setDragIndex(null);
                 }}
                 onDragEnd={() => setDragIndex(null)}
                 style={carouselCardStyle}
                 title="拖曳調整順序"
               >
-                <span style={carouselNumberStyle}>
-                  {String(visualIndex + 1).padStart(2, "0")}
-                </span>
-
-                <div style={carouselImageFrameStyle}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
-                </div>
-
+                <span style={carouselNumberStyle}>{String(visualIndex + 1).padStart(2, "0")}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(image)} alt="" style={carouselImageStyle} />
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
                   <span>{getImageLabel(image, visualIndex)}</span>
                 </div>
-
                 <div style={carouselActionsStyle}>
-                  <button
-                    type="button"
-                    style={ghostButtonStyle}
-                    onClick={() => toggleVisible(index)}
-                  >
+                  <button type="button" style={ghostButtonStyle} onClick={() => toggleVisible(index)}>
                     {item.isVisible === false ? "顯示" : "隱藏"}
                   </button>
-
-                  <button
-                    type="button"
-                    style={removeButtonStyle}
-                    onClick={() => removeItem(index)}
-                  >
+                  <button type="button" style={removeButtonStyle} onClick={() => removeItem(index)}>
                     移除
                   </button>
                 </div>
@@ -385,7 +362,9 @@ export default function HomepageCarouselPreviewInput({
                           }}
                           onClick={() => toggleCategory(child._id)}
                         >
-                          <span>{expandedCategoryIds.includes(child._id) ? "▾" : "▸"}</span>
+                          <span>
+                            {expandedCategoryIds.includes(child._id) ? "▾" : "▸"}
+                          </span>
                           <span>{child.title || "未命名作品集分類"}</span>
                         </button>
 
@@ -451,8 +430,7 @@ export default function HomepageCarouselPreviewInput({
                 ) : (
                   <span style={projectThumbStyle} />
                 )}
-
-                <span style={projectTitleCellStyle}>{getProjectTitle(project)}</span>
+                <span>{getProjectTitle(project)}</span>
                 <small>{project.galleryImages?.length ?? 0} 張</small>
               </button>
             ))}
@@ -485,16 +463,11 @@ export default function HomepageCarouselPreviewInput({
                     }
                   }}
                 >
-                  <div style={imageFrameStyle}>
-                    {getImageUrl(image) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={getImageUrl(image)} alt="" style={imageStyle} />
-                    ) : null}
-                  </div>
-
-                  <span style={imageActionLabelStyle}>
-                    {isSelected ? "已加入輪播" : "加入輪播"}
-                  </span>
+                  {getImageUrl(image) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={getImageUrl(image)} alt="" style={imageStyle} />
+                  ) : null}
+                  <span>{isSelected ? "已加入輪播" : "加入輪播"}</span>
                 </button>
               );
             })}
@@ -508,10 +481,9 @@ export default function HomepageCarouselPreviewInput({
 const shellStyle: CSSProperties = {
   display: "grid",
   gap: 28,
+  marginLeft: "calc((100vw - 120px - 100%) / -2)",
   paddingBottom: 12,
-  width: "100%",
-  maxWidth: "100%",
-  overflowX: "hidden",
+  width: "calc(100vw - 120px)",
 };
 
 const headerStyle: CSSProperties = {
@@ -537,17 +509,16 @@ const titleStyle: CSSProperties = {
 const carouselSectionStyle: CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.12)",
   paddingBottom: 26,
-  maxWidth: "100%",
-  overflowX: "hidden",
 };
 
 const carouselTrackStyle: CSSProperties = {
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gridAutoColumns: "minmax(190px, 230px)",
+  gridAutoFlow: "column",
+  overflowX: "auto",
   padding: "4px 2px 18px",
-  maxWidth: "100%",
-  overflowX: "hidden",
+  scrollbarColor: "rgba(201,164,106,0.72) rgba(255,255,255,0.08)",
 };
 
 const carouselCardStyle: CSSProperties = {
@@ -557,8 +528,6 @@ const carouselCardStyle: CSSProperties = {
   cursor: "grab",
   overflow: "hidden",
   position: "relative",
-  minWidth: 0,
-  width: "100%",
 };
 
 const carouselNumberStyle: CSSProperties = {
@@ -574,20 +543,11 @@ const carouselNumberStyle: CSSProperties = {
   zIndex: 1,
 };
 
-const carouselImageFrameStyle: CSSProperties = {
-  alignItems: "center",
+const carouselImageStyle: CSSProperties = {
   aspectRatio: "4 / 3",
   background: "#111",
-  display: "flex",
-  justifyContent: "center",
-  overflow: "hidden",
-  width: "100%",
-};
-
-const carouselImageStyle: CSSProperties = {
   display: "block",
-  height: "100%",
-  objectFit: "contain",
+  objectFit: "cover",
   width: "100%",
 };
 
@@ -595,7 +555,6 @@ const carouselMetaStyle: CSSProperties = {
   display: "grid",
   gap: 4,
   padding: "12px 12px 0",
-  minWidth: 0,
 };
 
 const carouselActionsStyle: CSSProperties = {
@@ -616,10 +575,8 @@ const emptyCarouselStyle: CSSProperties = {
 
 const pickerStyle: CSSProperties = {
   display: "grid",
-  gap: 28,
-  gridTemplateColumns: "300px minmax(0, 1fr)",
-  width: "100%",
-  maxWidth: "100%",
+  gap: 36,
+  gridTemplateColumns: "340px minmax(0, 1fr)",
 };
 
 const treeStyle: CSSProperties = {
@@ -627,8 +584,6 @@ const treeStyle: CSSProperties = {
   borderRadius: 18,
   minHeight: 520,
   padding: 18,
-  minWidth: 0,
-  overflowX: "hidden",
 };
 
 const treeButtonStyle: CSSProperties = {
@@ -694,8 +649,6 @@ const projectDotStyle: CSSProperties = {
 
 const browserStyle: CSSProperties = {
   minWidth: 0,
-  maxWidth: "100%",
-  overflowX: "hidden",
 };
 
 const browserTopStyle: CSSProperties = {
@@ -703,7 +656,6 @@ const browserTopStyle: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   marginBottom: 14,
-  maxWidth: "100%",
 };
 
 const searchLabelStyle: CSSProperties = {
@@ -712,7 +664,6 @@ const searchLabelStyle: CSSProperties = {
   flex: "0 1 420px",
   gap: 8,
   fontSize: 14,
-  minWidth: 0,
 };
 
 const searchInputStyle: CSSProperties = {
@@ -722,14 +673,12 @@ const searchInputStyle: CSSProperties = {
   color: "#f4f0e8",
   font: "inherit",
   padding: "12px 14px",
-  width: "100%",
 };
 
 const projectListStyle: CSSProperties = {
   display: "grid",
   gap: 10,
   gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-  maxWidth: "100%",
 };
 
 const projectButtonStyle: CSSProperties = {
@@ -744,8 +693,6 @@ const projectButtonStyle: CSSProperties = {
   gridTemplateColumns: "54px minmax(0, 1fr) auto",
   padding: 8,
   textAlign: "left",
-  width: "100%",
-  minWidth: 0,
 };
 
 const activeProjectStyle: CSSProperties = {
@@ -761,28 +708,18 @@ const projectThumbStyle: CSSProperties = {
   width: 54,
 };
 
-const projectTitleCellStyle: CSSProperties = {
-  minWidth: 0,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "normal",
-};
-
 const imagePickerHeaderStyle: CSSProperties = {
   alignItems: "center",
   display: "flex",
   justifyContent: "space-between",
   marginTop: 28,
-  gap: 16,
 };
 
 const imageGridStyle: CSSProperties = {
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
   marginTop: 14,
-  maxWidth: "100%",
-  overflowX: "hidden",
 };
 
 const imageButtonStyle: CSSProperties = {
@@ -794,34 +731,18 @@ const imageButtonStyle: CSSProperties = {
   overflow: "hidden",
   padding: 0,
   textAlign: "left",
-  width: "100%",
-  minWidth: 0,
 };
 
 const selectedImageStyle: CSSProperties = {
   borderColor: "#c9a46a",
 };
 
-const imageFrameStyle: CSSProperties = {
-  alignItems: "center",
+const imageStyle: CSSProperties = {
   aspectRatio: "4 / 3",
   background: "#111",
-  display: "flex",
-  justifyContent: "center",
-  overflow: "hidden",
-  width: "100%",
-};
-
-const imageStyle: CSSProperties = {
   display: "block",
-  height: "100%",
   objectFit: "contain",
   width: "100%",
-};
-
-const imageActionLabelStyle: CSSProperties = {
-  display: "block",
-  padding: "10px 12px",
 };
 
 const ghostButtonStyle: CSSProperties = {
