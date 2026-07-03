@@ -718,7 +718,7 @@ const imagePickerHeaderStyle: CSSProperties = {
 const imageGridStyle: CSSProperties = {
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
   marginTop: 14,
 };
 
