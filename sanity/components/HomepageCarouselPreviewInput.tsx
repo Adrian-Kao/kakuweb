@@ -259,10 +259,7 @@ export default function HomepageCarouselPreviewInput({
 
   return (
     <div style={shellStyle}>
-      <header style={headerStyle}>
-        <span style={eyebrowStyle}>Homepage Carousel</span>
-        <h2 style={titleStyle}>首頁輪播</h2>
-      </header>
+
 
       <section style={carouselSectionStyle}>
         {selectedItems.length > 0 ? (
@@ -721,7 +718,7 @@ const imagePickerHeaderStyle: CSSProperties = {
 const imageGridStyle: CSSProperties = {
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
   marginTop: 14,
 };
 
