@@ -289,7 +289,7 @@ export default function HomepageCarouselPreviewInput({
 
                 <div style={carouselMetaStyle}>
                   <strong>{getProjectTitle(project)}</strong>
-                  <span>{getImageLabel(image, visualIndex)}</span>
+                  <span>{getImageLabel(image, visualIndex)}測試</span>
                 </div>
               </article>
             ))}
