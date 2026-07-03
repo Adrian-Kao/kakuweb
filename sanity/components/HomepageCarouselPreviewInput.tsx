@@ -486,26 +486,6 @@ const shellStyle: CSSProperties = {
   width: "calc(100vw - 120px)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "grid",
-  gap: 8,
-};
-
-const eyebrowStyle: CSSProperties = {
-  color: "rgba(244,240,232,0.54)",
-  fontSize: 13,
-  letterSpacing: "0.18em",
-  textTransform: "uppercase",
-};
-
-const titleStyle: CSSProperties = {
-  color: "#f4f0e8",
-  fontSize: 44,
-  fontWeight: 600,
-  lineHeight: 1,
-  margin: 0,
-};
-
 const carouselSectionStyle: CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.12)",
   paddingBottom: 26,
@@ -649,6 +629,7 @@ const projectDotStyle: CSSProperties = {
 
 const browserStyle: CSSProperties = {
   minWidth: 0,
+  overflow: "hidden",
 };
 
 const browserTopStyle: CSSProperties = {
@@ -718,7 +699,8 @@ const imagePickerHeaderStyle: CSSProperties = {
 const imageGridStyle: CSSProperties = {
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 340px))",
+  justifyContent: "start",
   marginTop: 14,
 };
 
@@ -731,6 +713,7 @@ const imageButtonStyle: CSSProperties = {
   overflow: "hidden",
   padding: 0,
   textAlign: "left",
+  width: "100%",
 };
 
 const selectedImageStyle: CSSProperties = {
@@ -741,6 +724,7 @@ const imageStyle: CSSProperties = {
   aspectRatio: "4 / 3",
   background: "#111",
   display: "block",
+  height: "clamp(180px, 18vw, 250px)",
   objectFit: "contain",
   width: "100%",
 };
