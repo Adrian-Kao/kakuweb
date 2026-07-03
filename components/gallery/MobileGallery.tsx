@@ -124,7 +124,7 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
                 onClick={() => scrollToSeries(series.slug)}
                 className="shrink-0 border border-white/10 px-4 py-3 text-left text-[0.68rem] uppercase tracking-[0.2em] text-[rgba(243,238,230,0.62)] transition hover:border-[#c9a46a]/70 hover:text-[#f3eee6]"
               >
-                {String(index + 1).padStart(2, "0")} \u2014 {series.title}
+                {String(index + 1).padStart(2, "0")} {series.title}
               </button>
             ))}
           </div>
