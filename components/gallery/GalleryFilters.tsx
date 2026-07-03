@@ -23,7 +23,7 @@ export default function GalleryFilters({
   onCategoryChange,
   onSeriesSelect,
 }: GalleryFiltersProps) {
-  const [expandedPanel, setExpandedPanel] = useState<ExpandedPanel>("categories");
+  const [expandedPanel, setExpandedPanel] = useState<ExpandedPanel>("series");
 
   const effectiveCategoryId =
     activeCategory === "all" ? categories[0]?.id : activeCategory;
@@ -31,6 +31,7 @@ export default function GalleryFilters({
   useEffect(() => {
     if (activeCategory === "all" && categories[0]?.id) {
       onCategoryChange(categories[0].id);
+      setExpandedPanel("series");
     }
   }, [activeCategory, categories, onCategoryChange]);
 
@@ -42,8 +43,21 @@ export default function GalleryFilters({
     return series.filter((item) => item.categoryId === effectiveCategoryId);
   }, [effectiveCategoryId, series]);
 
+  const activeCategoryLabel =
+    categories.find((category) => category.id === effectiveCategoryId)?.label ??
+    "請選擇作品分類";
+
   const isCategoriesOpen = expandedPanel === "categories";
   const isSeriesOpen = expandedPanel === "series";
+
+  function handleCategorySelect(categoryId: GalleryCategoryId) {
+    onCategoryChange(categoryId);
+    setExpandedPanel("series");
+  }
+
+  function handleSeriesSelect(seriesSlug: string) {
+    onSeriesSelect(seriesSlug);
+  }
 
   return (
     <aside className="relative z-10 flex min-h-[38vh] flex-col lg:min-h-0">
@@ -75,10 +89,16 @@ export default function GalleryFilters({
           </span>
         </button>
 
+        {!isCategoriesOpen ? (
+          <p className="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-[rgba(243,238,230,0.42)]">
+            {activeCategoryLabel}
+          </p>
+        ) : null}
+
         {isCategoriesOpen ? (
           <nav
             aria-label="Gallery categories"
-            className="scrollbar-hidden mt-4 flex max-h-[22vh] flex-col gap-2 overflow-y-auto pr-2"
+            className="scrollbar-hidden mt-4 flex max-h-[24vh] flex-col gap-2 overflow-y-auto pr-2"
           >
             {categories.map((category, index) => {
               const isActive = effectiveCategoryId === category.id;
@@ -88,10 +108,7 @@ export default function GalleryFilters({
                   key={category.id}
                   type="button"
                   aria-pressed={isActive}
-                  onClick={() => {
-                    onCategoryChange(category.id);
-                    setExpandedPanel("series");
-                  }}
+                  onClick={() => handleCategorySelect(category.id)}
                   className={[
                     "border-b py-3 text-left text-xs uppercase tracking-[0.22em] transition duration-300",
                     isActive
@@ -125,10 +142,16 @@ export default function GalleryFilters({
           </span>
         </button>
 
+        {!isSeriesOpen ? (
+          <p className="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-[rgba(243,238,230,0.42)]">
+            {activeCategoryLabel} 的作品集
+          </p>
+        ) : null}
+
         {isSeriesOpen ? (
           <nav
             aria-label="Gallery series"
-            className="scrollbar-hidden mt-4 flex max-h-[24vh] flex-col gap-2 overflow-y-auto pr-2"
+            className="scrollbar-hidden mt-4 flex max-h-[26vh] flex-col gap-2 overflow-y-auto pr-2"
           >
             {visibleSeries.length > 0 ? (
               visibleSeries.map((item, index) => {
@@ -139,7 +162,7 @@ export default function GalleryFilters({
                     key={item.id}
                     type="button"
                     aria-pressed={isActive}
-                    onClick={() => onSeriesSelect(item.slug)}
+                    onClick={() => handleSeriesSelect(item.slug)}
                     className={[
                       "border-b py-2 text-left text-[0.68rem] uppercase tracking-[0.2em] transition duration-300",
                       isActive
