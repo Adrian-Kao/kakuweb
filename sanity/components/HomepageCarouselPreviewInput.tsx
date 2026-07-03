@@ -481,12 +481,16 @@ export default function HomepageCarouselPreviewInput({
 }
 
 const shellStyle: CSSProperties = {
+  boxSizing: "border-box",
   display: "grid",
   gap: 28,
-  maxWidth: "100%",
+  left: "50%",
+  maxWidth: "1360px",
   overflowX: "hidden",
   paddingBottom: 12,
-  width: "100%",
+  position: "relative",
+  transform: "translateX(-50%)",
+  width: "min(1360px, 180%)",
 };
 
 const carouselSectionStyle: CSSProperties = {
