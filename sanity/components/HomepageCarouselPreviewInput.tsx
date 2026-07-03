@@ -483,9 +483,9 @@ export default function HomepageCarouselPreviewInput({
 const shellStyle: CSSProperties = {
   display: "grid",
   gap: 28,
-  marginLeft: "calc((100vw - 120px - 100%) / -2)",
+  marginLeft: "calc((100vw - 460px - 100%) / -2)",
   paddingBottom: 12,
-  width: "calc(100vw - 120px)",
+  width: "min(1320px, calc(100vw - 460px))",
 };
 
 const carouselSectionStyle: CSSProperties = {
@@ -740,7 +740,7 @@ const imageStyle: CSSProperties = {
   display: "block",
   height: "100%",
   minHeight: 0,
-  objectFit: "contain",
+  objectFit: "cover",
   width: "100%",
 };
 
