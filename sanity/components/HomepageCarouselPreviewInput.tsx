@@ -263,6 +263,11 @@ export default function HomepageCarouselPreviewInput({
   return (
     <div style={shellStyle}>
       <section style={carouselSectionStyle}>
+        <div style={sectionHeaderStyle}>
+          <strong>首頁輪播</strong>
+          <span>可拖曳調整順序</span>
+        </div>
+
         {selectedItems.length > 0 ? (
           <div style={carouselTrackStyle}>
             {selectedItems.map(({ item, index, project, image }, visualIndex) => (
@@ -321,6 +326,8 @@ export default function HomepageCarouselPreviewInput({
 
       <section style={pickerStyle}>
         <aside style={treeStyle}>
+          <div style={panelTitleStyle}>分類 / 作品集</div>
+
           <button
             type="button"
             style={{ ...treeButtonStyle, ...(selectedCategoryId ? {} : activeTreeStyle) }}
@@ -427,6 +434,8 @@ export default function HomepageCarouselPreviewInput({
             </label>
           </div>
 
+          <div style={projectSectionTitleStyle}>作品集</div>
+
           <div style={projectListStyle}>
             {filteredProjects.map((project) => (
               <button
@@ -483,7 +492,7 @@ export default function HomepageCarouselPreviewInput({
                     <img src={getImageUrl(image)} alt="" style={imageStyle} />
                   ) : null}
 
-                  <span style={imageCaptionStyle}>
+                  <span style={{ ...imageCaptionStyle, ...(isSelected ? selectedCaptionStyle : {}) }}>
                     {isSelected ? "已加入輪播" : "加入輪播"}
                   </span>
                 </button>
@@ -506,6 +515,15 @@ const shellStyle: CSSProperties = {
   width: "100%",
 };
 
+const sectionHeaderStyle: CSSProperties = {
+  alignItems: "baseline",
+  color: "#f4f0e8",
+  display: "flex",
+  gap: 10,
+  letterSpacing: "0.04em",
+  marginBottom: 14,
+};
+
 const carouselSectionStyle: CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.12)",
   boxSizing: "border-box",
@@ -519,7 +537,7 @@ const carouselTrackStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
   gap: 18,
-  gridAutoColumns: "minmax(190px, 230px)",
+  gridAutoColumns: "minmax(210px, 250px)",
   gridAutoFlow: "column",
   maxWidth: "100%",
   overflowX: "auto",
@@ -529,9 +547,9 @@ const carouselTrackStyle: CSSProperties = {
 };
 
 const carouselCardStyle: CSSProperties = {
-  background: "rgba(255,255,255,0.045)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.025))",
   border: "1px solid rgba(255,255,255,0.13)",
-  borderRadius: 18,
+  borderRadius: 10,
   boxSizing: "border-box",
   cursor: "grab",
   minWidth: 0,
@@ -541,15 +559,16 @@ const carouselCardStyle: CSSProperties = {
 };
 
 const carouselNumberStyle: CSSProperties = {
-  background: "rgba(5,5,5,0.62)",
-  borderRadius: 999,
-  color: "#c9a46a",
-  fontSize: 12,
+  background: "#c9a46a",
+  borderRadius: "0 0 10px 0",
+  color: "#1c140c",
+  fontSize: 14,
+  fontWeight: 700,
   left: 12,
   letterSpacing: "0.12em",
-  padding: "5px 8px",
+  padding: "8px 12px",
   position: "absolute",
-  top: 12,
+  top: 0,
   zIndex: 1,
 };
 
@@ -569,7 +588,8 @@ const carouselMetaStyle: CSSProperties = {
 const carouselActionsStyle: CSSProperties = {
   display: "flex",
   gap: 8,
-  padding: 12,
+  justifyContent: "space-between",
+  padding: "10px 12px 12px",
 };
 
 const emptyCarouselStyle: CSSProperties = {
@@ -585,8 +605,8 @@ const emptyCarouselStyle: CSSProperties = {
 const pickerStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
-  gap: 36,
-  gridTemplateColumns: "minmax(260px, 340px) minmax(0, 1fr)",
+  gap: 20,
+  gridTemplateColumns: "minmax(240px, 300px) minmax(0, 1fr)",
   maxWidth: "100%",
   overflowX: "hidden",
   width: "100%",
@@ -594,13 +614,20 @@ const pickerStyle: CSSProperties = {
 
 const treeStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 18,
+  borderRadius: 8,
   boxSizing: "border-box",
   minHeight: 520,
   minWidth: 0,
   overflowX: "hidden",
   padding: 18,
   width: "100%",
+};
+
+const panelTitleStyle: CSSProperties = {
+  color: "#f4f0e8",
+  fontSize: 14,
+  letterSpacing: "0.04em",
+  marginBottom: 20,
 };
 
 const treeButtonStyle: CSSProperties = {
@@ -620,7 +647,7 @@ const treeButtonStyle: CSSProperties = {
 };
 
 const activeTreeStyle: CSSProperties = {
-  background: "rgba(98,102,255,0.18)",
+  background: "rgba(90,96,190,0.34)",
   color: "#f4f0e8",
 };
 
@@ -676,12 +703,14 @@ const browserStyle: CSSProperties = {
 
 const browserTopStyle: CSSProperties = {
   alignItems: "end",
+  borderBottom: "1px solid rgba(255,255,255,0.1)",
   boxSizing: "border-box",
   display: "flex",
   justifyContent: "space-between",
-  marginBottom: 14,
+  marginBottom: 18,
   maxWidth: "100%",
   minWidth: 0,
+  paddingBottom: 14,
   width: "100%",
 };
 
@@ -705,28 +734,35 @@ const searchInputStyle: CSSProperties = {
   width: "100%",
 };
 
+const projectSectionTitleStyle: CSSProperties = {
+  color: "rgba(244,240,232,0.72)",
+  fontSize: 14,
+  marginBottom: 12,
+};
+
 const projectListStyle: CSSProperties = {
   boxSizing: "border-box",
   display: "grid",
-  gap: 10,
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gap: 16,
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
   maxWidth: "100%",
   width: "100%",
 };
 
 const projectButtonStyle: CSSProperties = {
-  alignItems: "center",
+  alignItems: "stretch",
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 12,
+  borderRadius: 8,
   boxSizing: "border-box",
   color: "#f4f0e8",
   cursor: "pointer",
   display: "grid",
-  gap: 10,
-  gridTemplateColumns: "54px minmax(0, 1fr) auto",
+  gap: 0,
+  gridTemplateColumns: "1fr",
   minWidth: 0,
-  padding: 8,
+  overflow: "hidden",
+  padding: 0,
   textAlign: "left",
   width: "100%",
 };
@@ -738,19 +774,22 @@ const activeProjectStyle: CSSProperties = {
 
 const projectThumbStyle: CSSProperties = {
   background: "#171717",
-  borderRadius: 8,
-  height: 44,
+  display: "block",
+  height: "auto",
   objectFit: "cover",
-  width: 54,
+  width: "100%",
 };
 
 const projectTitleTextStyle: CSSProperties = {
   minWidth: 0,
   overflow: "hidden",
+  padding: "10px 12px 2px",
   textOverflow: "ellipsis",
 };
 
 const projectCountStyle: CSSProperties = {
+  color: "rgba(244,240,232,0.62)",
+  padding: "0 12px 12px",
   whiteSpace: "nowrap",
 };
 
@@ -768,9 +807,8 @@ const imagePickerHeaderStyle: CSSProperties = {
 
 const imageGridStyle: CSSProperties = {
   boxSizing: "border-box",
-  display: "grid",
-  gap: 18,
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  columnCount: 3,
+  columnGap: 18,
   marginTop: 14,
   maxWidth: "100%",
   overflowX: "hidden",
@@ -780,10 +818,13 @@ const imageGridStyle: CSSProperties = {
 const imageButtonStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 18,
+  borderRadius: 8,
   boxSizing: "border-box",
+  breakInside: "avoid",
   color: "#f4f0e8",
   cursor: "pointer",
+  display: "block",
+  marginBottom: 18,
   minWidth: 0,
   overflow: "hidden",
   padding: 0,
@@ -793,6 +834,7 @@ const imageButtonStyle: CSSProperties = {
 
 const selectedImageStyle: CSSProperties = {
   borderColor: "#c9a46a",
+  boxShadow: "0 0 0 1px rgba(201,164,106,0.5)",
 };
 
 const imageStyle: CSSProperties = {
@@ -803,7 +845,7 @@ const imageStyle: CSSProperties = {
 
 const imageCaptionStyle: CSSProperties = {
   alignItems: "center",
-  background: "rgba(5,5,5,0.42)",
+  background: "rgba(255,255,255,0.045)",
   boxSizing: "border-box",
   display: "flex",
   fontSize: 13,
@@ -812,6 +854,10 @@ const imageCaptionStyle: CSSProperties = {
   padding: "0 10px",
   whiteSpace: "nowrap",
   width: "100%",
+};
+
+const selectedCaptionStyle: CSSProperties = {
+  color: "#c9a46a",
 };
 
 const ghostButtonStyle: CSSProperties = {
