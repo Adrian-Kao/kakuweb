@@ -36,6 +36,10 @@ function getCategoryScope(categoryId: string | null, categories: GalleryData["ca
   ]);
 }
 
+function getCategorySlug(categoryId: string) {
+  return categoryId.replace(/^category-/, "");
+}
+
 export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -95,7 +99,10 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
           <div className="scrollbar-hidden sticky top-0 z-20 -mx-6 mt-10 flex gap-3 overflow-x-auto border-y border-white/10 bg-[#050505]/88 px-6 py-4 backdrop-blur-md">
             <button
               type="button"
-              onClick={() => setActiveCategoryId(null)}
+              onClick={() => {
+                setActiveCategoryId(null);
+                router.push("/gallery");
+              }}
               className={[
                 "shrink-0 text-[0.68rem] uppercase tracking-[0.22em] transition",
                 effectiveCategoryId
@@ -109,7 +116,10 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
               <button
                 key={category.id}
                 type="button"
-                onClick={() => setActiveCategoryId(category.id)}
+                onClick={() => {
+                  setActiveCategoryId(category.id);
+                  router.push(`/gallery/${getCategorySlug(category.id)}`);
+                }}
                 className={[
                   "shrink-0 text-[0.68rem] uppercase tracking-[0.22em] transition",
                   effectiveCategoryId === category.id

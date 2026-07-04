@@ -59,9 +59,7 @@ function mapCategories(categories: SanityCategory[]): Category[] {
 }
 
 function mapProjectToSeries(project: SanityProject, fallbackCategoryId: GalleryCategoryId): Series {
-  const firstCategory = project.categories?.find(
-    (category) => category && category.isVisible !== false,
-  );
+  const firstCategory = getProjectDisplayCategory(project);
   const cover = getProjectCoverImage(project);
 
   return {
@@ -84,6 +82,17 @@ function getCoverImageAsProjectImage(project: SanityProject): SanityProjectImage
     _key: "cover",
     isCover: true,
   };
+}
+
+function getProjectDisplayCategory(project: SanityProject) {
+  const visibleCategories =
+    project.categories?.filter((category) => category && category.isVisible !== false) ?? [];
+
+  return (
+    visibleCategories.find((category) => category.parentCategory || category.parent) ??
+    visibleCategories[0] ??
+    null
+  );
 }
 
 function getProjectCoverImage(project: SanityProject) {
@@ -131,9 +140,7 @@ function mapProjectToPhotos(
   project: SanityProject,
   fallbackCategoryId: GalleryCategoryId,
 ): GalleryPhoto[] {
-  const firstCategory = project.categories?.find(
-    (category) => category && category.isVisible !== false,
-  );
+  const firstCategory = getProjectDisplayCategory(project);
   const categoryId = firstCategory ? toCategoryId(firstCategory.slug) : fallbackCategoryId;
   const categoryName = firstCategory?.title ?? "未分類";
   const images = getProjectImages(project);
