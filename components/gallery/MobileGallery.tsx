@@ -151,7 +151,7 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
               onClick={() => router.push("/gallery")}
               className="mt-3 border-b border-[#c9a46a] pb-2 text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a]"
             >
-              作品集
+              返回作品集
             </button>
           ) : null}
 
