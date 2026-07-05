@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 :root {
+  /* Frontend color tokens: adjust the site-wide background and main text color here. */
   --background: #050505;
   --foreground: #f4f0e8;
 }
 
 @theme inline {
+  /* Frontend Tailwind theme mapping: controls shared color and font variables. */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -14,12 +16,14 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Frontend dark-mode color tokens. */
     --background: #050505;
     --foreground: #f4f0e8;
   }
 }
 
 body {
+  /* Frontend global base styles: background, text color, and fallback font stack. */
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Category, GalleryCategoryId, Series } from "../../data/gallery";
 
+// Frontend typography/color settings: Gallery sidebar labels, active colors, and text sizing are controlled by className strings below.
 type ExpandedPanel = "categories" | "series";
 
 type GalleryFiltersProps = {

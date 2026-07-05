@@ -4,6 +4,7 @@ import type { HomeSlide } from "../../lib/sanity/types";
 import MobileShell from "../mobile/MobileShell";
 import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
+// Frontend typography/color settings: mobile Home text, accent, and background classes are in className strings below.
 type MobileHomeProps = {
   slides?: HomeSlide[];
 };

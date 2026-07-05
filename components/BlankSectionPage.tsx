@@ -1,5 +1,6 @@
 import PortfolioNavigation from "./PortfolioNavigation";
 
+// Frontend typography/color settings: Tailwind font, text, background, and color classes are marked in className strings below.
 type BlankSectionPageProps = {
   label: string;
 };

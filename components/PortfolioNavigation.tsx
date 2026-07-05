@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { usePageTransition } from "./PageTransition";
 
+// Frontend typography/color settings: navigation font, text color, accent, and border classes live in className strings below.
 const navigationItems = [
   { href: "/", label: " \u2014 HOME" },
   { href: "/about", label: " \u2014 ABOUT ME" },

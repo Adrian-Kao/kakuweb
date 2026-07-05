@@ -11,6 +11,7 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
   ssr: false,
 });
 
+// Frontend typography/color settings: mobile Gallery text, accent, background, and card colors are controlled by Tailwind classes below.
 type MobileGalleryProps = {
   forcedSeriesSlug?: string;
   data: GalleryData;

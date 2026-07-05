@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
+// Frontend typography/color settings: mobile top bar palette, menu text, and accent classes are in className strings below.
 const menuItems = [
   { href: "/", label: "01 \u2014 HOME" },
   { href: "/about", label: "02 \u2014 ABOUT ME" },

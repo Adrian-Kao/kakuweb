@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 
+// Frontend typography/color settings: mobile shell background and base text color are controlled by the wrapper className below.
 type MobileShellProps = {
   children: ReactNode;
 };

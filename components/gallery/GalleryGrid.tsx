@@ -13,6 +13,7 @@ import PortfolioNavigation from "../PortfolioNavigation";
 import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
 import GalleryFilters from "./GalleryFilters";
 
+// Frontend typography/color settings: Gallery layout text, accent, border, and background classes are in className strings below.
 const P5Sketch = dynamic(() => import("../P5Sketch"), {
   ssr: false,
 });

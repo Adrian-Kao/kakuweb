@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { GalleryPhoto } from "../../data/gallery";
 
+// Frontend typography/color settings: photo viewer overlay colors, text sizing, and accent classes are in className strings below.
 type PhotoViewerOverlayProps = {
   photo: GalleryPhoto;
   onClose: () => void;

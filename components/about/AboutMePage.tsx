@@ -9,6 +9,7 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
   ssr: false,
 });
 
+// Frontend typography/color settings: this page's darkroom palette, text sizes, and font weights are controlled by Tailwind classes below.
 type AboutSectionId = "philosophy" | "process" | "experience";
 
 const aboutSections: Array<{

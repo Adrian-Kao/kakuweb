@@ -9,6 +9,7 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
   ssr: false,
 });
 
+// Frontend typography/color settings: mobile About text, accent, form, and background classes are in className strings below.
 const mobileAboutSections = [
   {
     id: "philosophy",

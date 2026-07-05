@@ -7,6 +7,7 @@ import {
 } from "../../../../lib/sanity/data";
 import { optimizedImageUrl } from "../../../../lib/sanity/image";
 
+// Frontend typography/color settings: Suspense fallback markup below controls loading background and text color for this public route.
 export async function generateMetadata({
   params,
 }: {

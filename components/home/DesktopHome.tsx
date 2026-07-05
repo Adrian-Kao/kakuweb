@@ -5,6 +5,7 @@ import type { HomeSlide } from "../../lib/sanity/types";
 import PortfolioNavigation from "../PortfolioNavigation";
 import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
+// Frontend typography/color settings: desktop Home headline, accent, and background classes are in className strings below.
 type DesktopHomeProps = {
   slides?: HomeSlide[];
 };

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { PageTransitionProvider } from "../components/PageTransition";
 import "./globals.css";
 
+// Frontend font settings: these Next font imports control the public site's base font variables.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

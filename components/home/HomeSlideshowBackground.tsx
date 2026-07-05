@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { HomeSlide } from "../../lib/sanity/types";
 
+// Frontend color settings: slideshow overlay, dimming, and crop background styles are defined in classes/styles below.
 const slideDuration = 5600;
 
 type HomeSlideshowBackgroundProps = {
