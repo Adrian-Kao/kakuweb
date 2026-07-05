@@ -78,12 +78,12 @@ export default function AboutMePage() {
       } | null;
 
       setMailStatus("error");
-      setMailStatusMessage(result?.message ?? "Message could not be sent.");
+      setMailStatusMessage(result?.message ?? "無法寄信，請稍後再試。");
       return;
     }
 
     setMailStatus("sent");
-    setMailStatusMessage("Message sent. Thank you.");
+    setMailStatusMessage("成功寄送!");
     setMailSender("");
     setMailMessage("");
   };
