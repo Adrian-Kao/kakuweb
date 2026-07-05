@@ -273,8 +273,8 @@ export default function AboutMePage() {
               type="submit"
               className="mt-5 border-b border-[#c9a46a] pb-2 text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a] transition hover:text-[#f3eee6]"
             >
-              Send to ledtw1991@gmail.com
-            </button>
+              Send to bryant9662002@gmail.com
+            </button >
           </form>
         </section>
       </main>
