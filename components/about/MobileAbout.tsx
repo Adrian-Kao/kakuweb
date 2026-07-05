@@ -10,6 +10,8 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
 });
 
 // Frontend typography/color settings: mobile About text, accent, form, and background classes are in className strings below.
+type MailStatus = "idle" | "sending" | "sent" | "error";
+
 const mobileAboutSections = [
   {
     id: "philosophy",
@@ -47,15 +49,40 @@ function scrollToSection(id: string) {
 export default function MobileAbout() {
   const [mailSender, setMailSender] = useState("");
   const [mailMessage, setMailMessage] = useState("");
+  const [mailStatus, setMailStatus] = useState<MailStatus>("idle");
+  const [mailStatusMessage, setMailStatusMessage] = useState("");
   const mailInputRef = useRef<HTMLInputElement>(null);
 
-  const handleMailSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleMailSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const subject = encodeURIComponent("Portfolio Inquiry");
-    const body = encodeURIComponent(
-      `From: ${mailSender || "Not provided"}\n\n${mailMessage}`,
-    );
-    window.location.href = `mailto:ledtw1991@gmail.com?subject=${subject}&body=${body}`;
+    setMailStatus("sending");
+    setMailStatusMessage("");
+
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: mailSender,
+        message: mailMessage,
+      }),
+    });
+
+    if (!response.ok) {
+      const result = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
+
+      setMailStatus("error");
+      setMailStatusMessage(result?.message ?? "Message could not be sent.");
+      return;
+    }
+
+    setMailStatus("sent");
+    setMailStatusMessage("Message sent. Thank you.");
+    setMailSender("");
+    setMailMessage("");
   };
 
   return (
@@ -156,10 +183,23 @@ export default function MobileAbout() {
             />
             <button
               type="submit"
+              disabled={mailStatus === "sending"}
               className="mt-5 border-b border-[#c9a46a] pb-2 text-xs uppercase tracking-[0.24em] text-[#c9a46a]"
             >
-              Send Email
+              {mailStatus === "sending" ? "Sending..." : "Send Message"}
             </button>
+            {mailStatusMessage ? (
+              <p
+                className={[
+                  "mt-4 text-xs leading-5",
+                  mailStatus === "error"
+                    ? "text-red-300"
+                    : "text-[rgba(243,238,230,0.62)]",
+                ].join(" ")}
+              >
+                {mailStatusMessage}
+              </p>
+            ) : null}
           </form>
 
           <div className="mt-10 flex items-center gap-5 border-t border-white/10 pt-8">

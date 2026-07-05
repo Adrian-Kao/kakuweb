@@ -11,6 +11,7 @@ const P5Sketch = dynamic(() => import("../P5Sketch"), {
 
 // Frontend typography/color settings: this page's darkroom palette, text sizes, and font weights are controlled by Tailwind classes below.
 type AboutSectionId = "philosophy" | "process" | "experience";
+type MailStatus = "idle" | "sending" | "sent" | "error";
 
 const aboutSections: Array<{
   id: AboutSectionId;
@@ -45,6 +46,8 @@ export default function AboutMePage() {
   const [isMailOpen, setIsMailOpen] = useState(false);
   const [mailSender, setMailSender] = useState("");
   const [mailMessage, setMailMessage] = useState("");
+  const [mailStatus, setMailStatus] = useState<MailStatus>("idle");
+  const [mailStatusMessage, setMailStatusMessage] = useState("");
 
   const section = useMemo(
     () =>
@@ -53,14 +56,36 @@ export default function AboutMePage() {
     [activeSection],
   );
 
-  const handleMailSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleMailSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setMailStatus("sending");
+    setMailStatusMessage("");
 
-    const subject = encodeURIComponent("Portfolio Inquiry");
-    const body = encodeURIComponent(
-      `From: ${mailSender || "Not provided"}\n\n${mailMessage}`,
-    );
-    window.location.href = `mailto:ledtw1991@gmail.com?subject=${subject}&body=${body}`;
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: mailSender,
+        message: mailMessage,
+      }),
+    });
+
+    if (!response.ok) {
+      const result = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
+
+      setMailStatus("error");
+      setMailStatusMessage(result?.message ?? "Message could not be sent.");
+      return;
+    }
+
+    setMailStatus("sent");
+    setMailStatusMessage("Message sent. Thank you.");
+    setMailSender("");
+    setMailMessage("");
   };
 
   return (
@@ -271,10 +296,23 @@ export default function AboutMePage() {
             />
             <button
               type="submit"
+              disabled={mailStatus === "sending"}
               className="mt-5 border-b border-[#c9a46a] pb-2 text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a] transition hover:text-[#f3eee6]"
             >
-              Send to bryant9662002@gmail.com
+              {mailStatus === "sending" ? "Sending..." : "Send Message"}
             </button >
+            {mailStatusMessage ? (
+              <p
+                className={[
+                  "mt-4 text-xs leading-5",
+                  mailStatus === "error"
+                    ? "text-red-300"
+                    : "text-[rgba(243,238,230,0.62)]",
+                ].join(" ")}
+              >
+                {mailStatusMessage}
+              </p>
+            ) : null}
           </form>
         </section>
       </main>
