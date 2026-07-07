@@ -24,7 +24,7 @@ export default function GalleryFilters({
   onCategoryChange,
   onSeriesSelect,
 }: GalleryFiltersProps) {
-  const [expandedPanel, setExpandedPanel] = useState<ExpandedPanel>("series");
+  const [expandedPanel, setExpandedPanel] = useState<ExpandedPanel>("categories");
 
   const effectiveCategoryId =
     activeCategory === "all" ? categories[0]?.id : activeCategory;
