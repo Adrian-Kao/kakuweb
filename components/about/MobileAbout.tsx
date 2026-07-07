@@ -1,13 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 import MobileShell from "../mobile/MobileShell";
-
-const P5Sketch = dynamic(() => import("../P5Sketch"), {
-  ssr: false,
-});
 
 // Frontend typography/color settings: mobile About text, accent, form, and background classes are in className strings below.
 type MailStatus = "idle" | "sending" | "sent" | "error";
@@ -88,8 +83,6 @@ export default function MobileAbout() {
   return (
     <MobileShell>
       <div className="relative min-h-screen bg-[#050505] px-6 py-8 text-[#f3eee6]">
-        <P5Sketch intensity="low" />
-
         <div className="relative z-10">
           <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
             KAKU PHOTOGRAPHY

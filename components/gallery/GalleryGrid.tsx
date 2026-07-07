@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
@@ -14,10 +13,6 @@ import PhotoViewerOverlay from "../photo/PhotoViewerOverlay";
 import GalleryFilters from "./GalleryFilters";
 
 // Frontend typography/color settings: Gallery layout text, accent, border, and background classes are in className strings below.
-const P5Sketch = dynamic(() => import("../P5Sketch"), {
-  ssr: false,
-});
-
 type GalleryGridProps = {
   forcedSeriesSlug?: string;
   data: GalleryData;
@@ -111,8 +106,6 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
-      <P5Sketch />
-
       <main className="relative z-10 grid h-screen grid-cols-1 gap-14 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[26%_74%] lg:px-20 lg:py-12">
         <div className="flex h-[calc(100vh-4rem)] flex-col justify-between lg:h-[calc(100vh-6rem)]">
           <GalleryFilters

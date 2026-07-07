@@ -1,15 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { GalleryPhoto } from "../../data/gallery";
 import type { GalleryData } from "../../lib/sanity/data";
 import MobileShell from "../mobile/MobileShell";
-
-const P5Sketch = dynamic(() => import("../P5Sketch"), {
-  ssr: false,
-});
 
 // Frontend typography/color settings: mobile Gallery text, accent, background, and card colors are controlled by Tailwind classes below.
 type MobileGalleryProps = {
@@ -84,8 +79,6 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
   return (
     <MobileShell>
       <div className="relative min-h-screen bg-[#050505] px-6 py-8 text-[#f3eee6]">
-        <P5Sketch intensity="low" />
-
         <div className="relative z-10">
           <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
             KAKU PHOTOGRAPHY

@@ -1,13 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useMemo, useState, type FormEvent } from "react";
 import PortfolioNavigation from "../PortfolioNavigation";
-
-const P5Sketch = dynamic(() => import("../P5Sketch"), {
-  ssr: false,
-});
 
 // Frontend typography/color settings: this page's darkroom palette, text sizes, and font weights are controlled by Tailwind classes below.
 type AboutSectionId = "philosophy" | "process" | "experience";
@@ -90,8 +85,6 @@ export default function AboutMePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
-      <P5Sketch />
-
       <main className="relative z-10 grid min-h-screen grid-cols-1 gap-12 px-7 py-8 sm:px-12 lg:grid-cols-[24%_76%] lg:px-20 lg:py-12">
         <aside className="flex min-h-[34vh] flex-col justify-between lg:min-h-0">
           <div>
