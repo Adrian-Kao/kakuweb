@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useMemo, useState, type FormEvent } from "react";
 import PortfolioNavigation from "../PortfolioNavigation";
+
+const P5Sketch = dynamic(() => import("../P5Sketch"), {
+  ssr: false,
+});
 
 // Frontend typography/color settings: this page's darkroom palette, text sizes, and font weights are controlled by Tailwind classes below.
 type AboutSectionId = "philosophy" | "process" | "experience";
@@ -15,6 +20,7 @@ const aboutSections: Array<{
   body: string;
 }> = [
   {
+  //about me 自界
     id: "philosophy",
     label: "01 \u2014 PHILOSOPHY",
     title: "Photographs are made in the quiet before certainty.",
@@ -85,6 +91,9 @@ export default function AboutMePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
+      <P5Sketch />
+   
+     //about me 標題文字樣式 
       <main className="relative z-10 grid min-h-screen grid-cols-1 gap-12 px-7 py-8 sm:px-12 lg:grid-cols-[24%_76%] lg:px-20 lg:py-12">
         <aside className="flex min-h-[34vh] flex-col justify-between lg:min-h-0">
           <div>
@@ -157,7 +166,7 @@ export default function AboutMePage() {
             />
             <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.38)_0_1px,transparent_1px)] [background-size:10px_10px]" />
           </div>
-
+//文字大標 
           <div className="relative z-10 flex min-h-full items-center px-8 py-14 sm:px-12 lg:px-16">
             <div className="max-w-[34rem]">
               <p className="text-xs uppercase tracking-[0.36em] text-[#c9a46a]">
