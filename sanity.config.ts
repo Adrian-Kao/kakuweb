@@ -34,8 +34,18 @@ export default defineConfig({
                 S.document()
                   .schemaType("homepageCarousel")
                   .documentId("homepageCarousel")
-                  .id("homepageCarousel")
+                  .id("homepageCarouselDocument")
                   .title("首頁輪播"),
+              ),
+            S.listItem()
+              .id("portfolioGallery")
+              .title("Portfolio 管理")
+              .child(
+                S.document()
+                  .schemaType("portfolioGallery")
+                  .documentId("portfolioGallery")
+                  .id("portfolioGalleryDocument")
+                  .title("Portfolio 管理"),
               ),
           ]),
     }),

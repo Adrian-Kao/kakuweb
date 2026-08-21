@@ -14,6 +14,49 @@ export const carouselItemType = defineType({
       },
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
+      name: "alt",
+      title: "舊欄位：圖片替代文字",
+      type: "string",
+      hidden: true,
+    }),
+    defineField({
+      name: "caption",
+      title: "舊欄位：輪播說明",
+      type: "string",
+      hidden: true,
+    }),
+    defineField({
+      name: "isVisible",
+      title: "舊欄位：顯示在首頁",
+      type: "boolean",
+      hidden: true,
+    }),
+    defineField({
+      name: "selectedImageKey",
+      title: "舊欄位：作品集圖片",
+      type: "string",
+      hidden: true,
+    }),
+    defineField({
+      name: "project",
+      title: "舊欄位：來源作品集",
+      type: "reference",
+      to: [{ type: "project" }],
+      hidden: true,
+    }),
+    defineField({
+      name: "crop",
+      title: "舊欄位：輪播裁切",
+      type: "object",
+      hidden: true,
+      fields: [
+        defineField({ name: "x", title: "X", type: "number" }),
+        defineField({ name: "y", title: "Y", type: "number" }),
+        defineField({ name: "width", title: "寬度", type: "number" }),
+        defineField({ name: "height", title: "高度", type: "number" }),
+      ],
+    }),
   ],
   preview: {
     select: {

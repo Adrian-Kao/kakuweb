@@ -99,3 +99,8 @@ export type HomeSlide = {
   slug?: string;
   crop?: CarouselCrop;
 };
+
+export type SanityPortfolioGallery = {
+  _id: string;
+  images?: SanityProjectImage[];
+};

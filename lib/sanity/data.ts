@@ -12,6 +12,7 @@ import {
   categoriesQuery,
   categoryBySlugQuery,
   homepageCarouselQuery,
+  portfolioGalleryQuery,
   projectBySlugQuery,
   projectsQuery,
 } from "./queries";
@@ -22,12 +23,21 @@ import type {
   SanityHomepageCarousel,
   SanityProject,
   SanityProjectImage,
+  SanityPortfolioGallery,
 } from "./types";
 
 export type GalleryData = {
   categories: Category[];
   series: Series[];
   photos: GalleryPhoto[];
+};
+
+export type PortfolioPhoto = {
+  id: string;
+  imageUrl: string;
+  alt: string;
+  width?: number;
+  height?: number;
 };
 
 export const fallbackGalleryData: GalleryData = {
@@ -234,6 +244,30 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
   });
 
   return mappedSlides;
+}
+
+export async function getPortfolioPhotos(): Promise<PortfolioPhoto[]> {
+  const gallery = await sanityFetch<SanityPortfolioGallery | null>({
+    query: portfolioGalleryQuery,
+  });
+
+  return (gallery?.images ?? []).flatMap((image, index) => {
+    const imageUrl = optimizedImageUrl(image, { width: 1800 });
+
+    if (!imageUrl) {
+      return [];
+    }
+
+    const dimensions = image.asset?.metadata?.dimensions;
+
+    return {
+      id: image._key ?? `${imageUrl}-${index}`,
+      imageUrl,
+      alt: `KAKU Photography portfolio image ${index + 1}`,
+      width: dimensions?.width,
+      height: dimensions?.height,
+    };
+  });
 }
 
 export async function getProjectBySlug(slug: string) {

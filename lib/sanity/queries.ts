@@ -61,6 +61,21 @@ export const homepageCarouselQuery = /* groq */ `
   }
 `;
 
+export const portfolioGalleryQuery = /* groq */ `
+  *[_type == "portfolioGallery" && _id == "portfolioGallery"][0] {
+    _id,
+    images[]{
+      _key,
+      asset->{
+        _id,
+        url,
+        originalFilename,
+        metadata{dimensions{width, height, aspectRatio}}
+      }
+    }
+  }
+`;
+
 export const projectBySlugQuery = /* groq */ `
   *[_type == "project" && slug.current == $slug][0] {
     _id,
