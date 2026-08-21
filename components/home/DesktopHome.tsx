@@ -10,6 +10,9 @@ type DesktopHomeProps = {
   slides?: HomeSlide[];
 };
 
+// Each item is rendered on its own line. Move text between items to change the line break.
+const homeTitleLines = ["野次馬", "工作室"];
+
 export default function DesktopHome({ slides }: DesktopHomeProps) {
   const [isMenuHovered, setIsMenuHovered] = useState(false);
 
@@ -34,13 +37,24 @@ export default function DesktopHome({ slides }: DesktopHomeProps) {
            
 
             <h1 className="font-sans text-5xl font-black leading-[0.95] tracking-normal text-[#f4f0e8] sm:text-6xl">
-              野次馬工作室
+              {homeTitleLines.map((line) => (
+                <span key={line} className="block whitespace-nowrap">
+                  {line}
+                </span>
+              ))}
             </h1>
 
 
           </div>
 
-          <PortfolioNavigation />
+          <div
+            className={[
+              "transition-opacity duration-300",
+              isMenuHovered ? "opacity-100" : "opacity-35",
+            ].join(" ")}
+          >
+            <PortfolioNavigation />
+          </div>
         </section>
       </main>
     </div>
