@@ -5,10 +5,10 @@ import { getGalleryData } from "../../lib/sanity/data";
 
 // Frontend typography/color settings: the Suspense fallback below defines Gallery's loading background and text color.
 export const metadata: Metadata = {
-  title: "Gallery | KAKU Photography",
+  title: "Works | KAKU Photography",
   description: "An editorial archive of light, shadow, and memory.",
   openGraph: {
-    title: "Gallery | KAKU Photography",
+    title: "Works | KAKU Photography",
     description: "An editorial archive of light, shadow, and memory.",
   },
 };

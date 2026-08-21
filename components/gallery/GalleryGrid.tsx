@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
@@ -106,14 +108,12 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
-      <main className="relative z-10 grid h-screen grid-cols-1 gap-14 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[26%_74%] lg:px-20 lg:py-12">
+      <main className="relative z-10 grid h-screen grid-cols-1 gap-14 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[22%_78%] lg:px-20 lg:py-12">
         <div className="flex h-[calc(100vh-4rem)] flex-col justify-between lg:h-[calc(100vh-6rem)]">
           <GalleryFilters
             activeCategory={effectiveCategory}
-            activeSeriesTitle={activeSeries?.title}
             activeSeriesSlug={activeSeries?.slug}
             categories={categories}
-            series={series}
             onCategoryChange={(category) => {
               setActiveCategory(category);
               setSelectedPhotoId(null);
@@ -125,37 +125,20 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
 
               router.push(`/gallery/${category.replace(/^category-/, "")}`);
             }}
-            onSeriesSelect={(slug) => {
-              setSelectedPhotoId(null);
-              router.push(`/gallery/${slug}`);
-            }}
           />
           <PortfolioNavigation className="mt-14" />
         </div>
 
         <section className="scrollbar-hidden h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain pb-20 pr-0 lg:h-[calc(100vh-6rem)] lg:pr-3">
-          <div className="mb-14 flex items-end justify-between gap-8 border-b border-white/10 pb-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.32em] text-[#c9a46a]">
-                {isSeriesDetail ? "Series Archive" : "Series Index"}
-              </p>
-              
-              {isSeriesDetail ? (
-                <button
-                  type="button"
-                  onClick={() => router.push("/gallery")}
-                  className="mt-5 border-b border-[#c9a46a] pb-2 text-xs uppercase tracking-[0.24em] text-[#c9a46a] transition hover:text-[#f3eee6]"
-                >
-                  Back to Series
-                </button>
-              ) : null}
-            </div>
-            <p className="hidden text-xs uppercase tracking-[0.24em] text-[rgba(243,238,230,0.42)] sm:block">
-              {isSeriesDetail
-                ? `${visiblePhotos.length} Frames`
-                : `${visibleSeries.length} Series`}
-            </p>
-          </div>
+          {isSeriesDetail ? (
+            <button
+              type="button"
+              onClick={() => router.push("/gallery")}
+              className="mb-10 border-b border-[#c9a46a] pb-2 text-xs uppercase tracking-[0.24em] text-[#c9a46a] transition hover:text-[#f3eee6]"
+            >
+              Back
+            </button>
+          ) : null}
 
           {isSeriesDetail ? (
             <div className="grid grid-cols-1 gap-x-10 gap-y-14 md:grid-cols-2 xl:grid-cols-3">
@@ -166,26 +149,15 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
                   onClick={() => setSelectedPhotoId(photo.id)}
                   className="group block w-full text-left"
                 >
-                  <div
-                    className="relative overflow-hidden border border-white/10 bg-[#111] transition duration-500 group-hover:brightness-110"
-                    style={{ aspectRatio: photo.aspectRatio }}
-                  >
-                    <div
-                      className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-                      style={{ backgroundImage: `url(${photo.imageUrl})` }}
-                    />
-                  </div>
-                  <div className="mt-4 flex items-start justify-between gap-4 border-t border-white/10 pt-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-[#f3eee6]">
-                        {photo.title}
-                      </p>
-                      <p className="mt-2 text-[0.68rem] uppercase tracking-[0.18em] text-[rgba(243,238,230,0.46)]">
-                        {photo.categoryName} / {photo.collaborator}
-                      </p>
-                    </div>
-                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-[#c9a46a]">
-                      {photo.year}
+                  <img
+                    src={photo.imageUrl}
+                    alt={photo.alt}
+                    className="block h-auto w-full transition duration-500 group-hover:brightness-110"
+                    loading="lazy"
+                  />
+                  <div className="mt-4">
+                    <p className="text-xs uppercase tracking-[0.22em] text-[#f3eee6]">
+                      {photo.title}
                     </p>
                   </div>
                 </button>
@@ -193,11 +165,8 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-x-12 gap-y-16 md:grid-cols-2 xl:grid-cols-3">
-              {visibleSeries.map((series, index) => {
+              {visibleSeries.map((series) => {
                 const coverPhoto = getSeriesCoverPhoto(series, photos);
-                const category = categories.find(
-                  (item) => item.id === series.categoryId,
-                );
 
                 return (
                   <button
@@ -206,29 +175,15 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
                     onClick={() => router.push(`/gallery/${series.slug}`)}
                     className="group block w-full text-left"
                   >
-                    <div
-                      className="relative overflow-hidden border border-white/10 bg-[#111] transition duration-500 group-hover:brightness-110"
-                      style={{ aspectRatio: "4 / 5" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-                        style={{
-                          backgroundImage: `url(${coverPhoto?.imageUrl ?? "/1.jpg"})`,
-                        }}
-                      />
-                      <div className="absolute left-5 top-5 text-[0.62rem] uppercase tracking-[0.24em] text-[rgba(243,238,230,0.58)]">
-                        Series {String(index + 1).padStart(2, "0")}
-                      </div>
-                    </div>
-                    <div className="mt-5 border-t border-white/10 pt-4">
+                    <img
+                      src={coverPhoto?.imageUrl ?? "/1.jpg"}
+                      alt={coverPhoto?.alt ?? series.title}
+                      className="block h-auto w-full transition duration-500 group-hover:brightness-110"
+                      loading="lazy"
+                    />
+                    <div className="mt-5">
                       <p className="text-xs uppercase tracking-[0.24em] text-[#f3eee6]">
                         {series.title}
-                      </p>
-                      <p className="mt-2 text-[0.68rem] uppercase tracking-[0.18em] text-[#c9a46a]">
-                        {category?.name ?? "Category"} / Open Series
-                      </p>
-                      <p className="mt-4 max-w-sm text-sm leading-6 text-[rgba(243,238,230,0.5)]">
-                        {series.description}
                       </p>
                     </div>
                   </button>

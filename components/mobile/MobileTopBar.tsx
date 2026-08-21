@@ -6,14 +6,16 @@ import { useMemo, useState } from "react";
 // Frontend typography/color settings: mobile top bar palette, menu text, and accent classes are in className strings below.
 const menuItems = [
   { href: "/", label: "01 \u2014 HOME" },
-  { href: "/about", label: "02 \u2014 ABOUT ME" },
-  { href: "/gallery", label: "03 \u2014 GALLERY" },
+  { href: "/about", label: "02 \u2014 ABOUT" },
+  { href: "/gallery", label: "03 \u2014 WORKS" },
+  { href: "/portfolio", label: "04 \u2014 PORTFOLIO" },
 ];
 
 const pageTitles: Record<string, string> = {
   "/": "KAKU PHOTOGRAPHY",
-  "/about": "ABOUT ME",
-  "/gallery": "GALLERY",
+  "/about": "ABOUT",
+  "/portfolio": "PORTFOLIO",
+  "/gallery": "WORKS",
 };
 
 type MobileTopBarProps = {
@@ -26,7 +28,7 @@ export default function MobileTopBar({ transitionTo }: MobileTopBarProps) {
 
   const title = useMemo(() => {
     if (pathname.startsWith("/gallery")) {
-      return "GALLERY";
+      return "WORKS";
     }
 
     return pageTitles[pathname] ?? "KAKU PHOTOGRAPHY";

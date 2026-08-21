@@ -11,14 +11,14 @@ import { optimizedImageUrl } from "../../../../lib/sanity/image";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ parentSlug: string; childSlug: string }>;
+  params: Promise<{ seriesSlug: string; childSlug: string }>;
 }): Promise<Metadata> {
   const { childSlug } = await params;
   const category = await getCategoryBySlug(childSlug);
 
   if (!category) {
     return {
-      title: "Gallery | KAKU Photography",
+      title: "Works | KAKU Photography",
       description: "An editorial archive of light, shadow, and memory.",
     };
   }
@@ -44,7 +44,7 @@ export async function generateMetadata({
 export default async function GalleryChildCategoryPage({
   params,
 }: {
-  params: Promise<{ parentSlug: string; childSlug: string }>;
+  params: Promise<{ seriesSlug: string; childSlug: string }>;
 }) {
   const { childSlug } = await params;
   const data = await getGalleryData();

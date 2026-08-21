@@ -6,8 +6,9 @@ import { usePageTransition } from "./PageTransition";
 // Frontend typography/color settings: navigation font, text color, accent, and border classes live in className strings below.
 const navigationItems = [
   { href: "/", label: " \u2014 HOME" },
-  { href: "/about", label: " \u2014 ABOUT ME" },
-  { href: "/gallery", label: " \u2014 GALLERY" },
+  { href: "/about", label: " \u2014 ABOUT" },
+  { href: "/gallery", label: " \u2014 WORKS" },
+  { href: "/portfolio", label: " \u2014 PORTFOLIO" },
 ];
 
 type PortfolioNavigationProps = {
@@ -23,12 +24,15 @@ export default function PortfolioNavigation({
   return (
     <nav
       aria-label="Portfolio sections"
-      className={[className || "mt-10", "flex max-w-md flex-col gap-2"].join(
+      className={[className || "mt-10", "flex max-w-xs flex-col gap-2"].join(
         " ",
       )}
     >
       {navigationItems.map((item) => {
-        const isActive = pathname === item.href;
+        const isActive =
+          item.href === "/gallery"
+            ? pathname.startsWith("/gallery")
+            : pathname === item.href;
 
         return (
           <button

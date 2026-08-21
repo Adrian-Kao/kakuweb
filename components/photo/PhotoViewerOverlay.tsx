@@ -131,7 +131,7 @@ export default function PhotoViewerOverlay({
             }}
             className="mt-4 border-b border-[#c9a46a] pb-1 text-[0.68rem] uppercase tracking-[0.22em] text-[#c9a46a] transition hover:text-[#f3eee6]"
           >
-            Go to Gallery
+            Go to Works
           </button>
         ) : null}
       </div>

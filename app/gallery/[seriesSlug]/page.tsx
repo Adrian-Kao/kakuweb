@@ -76,7 +76,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: "Gallery | KAKU Photography",
+    title: "Works | KAKU Photography",
     description: "An editorial archive of light, shadow, and memory.",
   };
 }
