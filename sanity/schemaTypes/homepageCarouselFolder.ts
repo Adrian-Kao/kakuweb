@@ -1,5 +1,4 @@
 ﻿import { defineField, defineType } from "sanity";
-import HomepageCarouselPreviewInput from "../components/HomepageCarouselPreviewInput";
 
 export const carouselItemType = defineType({
   name: "carouselItem",
@@ -7,14 +6,22 @@ export const carouselItemType = defineType({
   type: "object",
   fields: [
     defineField({
-      name: "project",
-      title: "來源作品集",
-      type: "reference",
-      to: [{ type: "project" }],
+      name: "image",
+      title: "輪播照片",
+      type: "image",
+      options: {
+        hotspot: true,
+      },
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "selectedImageKey",
-      title: "輪播照片",
+      name: "alt",
+      title: "圖片替代文字",
+      type: "string",
+    }),
+    defineField({
+      name: "caption",
+      title: "輪播說明",
       type: "string",
     }),
     defineField({
@@ -23,36 +30,19 @@ export const carouselItemType = defineType({
       type: "boolean",
       initialValue: true,
     }),
-    defineField({
-      name: "crop",
-      title: "首頁輪播裁切",
-      type: "object",
-      hidden: true,
-      fields: [
-        defineField({ name: "x", title: "X", type: "number" }),
-        defineField({ name: "y", title: "Y", type: "number" }),
-        defineField({ name: "width", title: "寬度", type: "number" }),
-        defineField({ name: "height", title: "高度", type: "number" }),
-      ],
-    }),
   ],
   preview: {
     select: {
-      projectTitle: "project.title",
-      selectedImageKey: "selectedImageKey",
-      images: "project.galleryImages",
-      coverImage: "project.coverImage",
+      caption: "caption",
+      alt: "alt",
+      image: "image",
       isVisible: "isVisible",
     },
-    prepare({ projectTitle, selectedImageKey, images, coverImage, isVisible }) {
-      const selectedImage = images?.find(
-        (image: { _key?: string }) => image?._key === selectedImageKey,
-      );
-
+    prepare({ caption, alt, image, isVisible }) {
       return {
-        title: projectTitle || "首頁輪播照片",
+        title: caption || alt || "首頁輪播照片",
         subtitle: isVisible ? "顯示在首頁" : "已隱藏",
-        media: selectedImage ?? coverImage,
+        media: image,
       };
     },
   },
@@ -75,8 +65,8 @@ export const homepageCarouselType = defineType({
       title: "首頁輪播照片",
       type: "array",
       of: [{ type: "carouselItem" }],
-      components: {
-        input: HomepageCarouselPreviewInput as never,
+      options: {
+        sortable: true,
       },
     }),
   ],
@@ -84,7 +74,7 @@ export const homepageCarouselType = defineType({
     prepare() {
       return {
         title: "首頁輪播",
-        subtitle: "從作品集中挑選首頁照片",
+        subtitle: "直接上傳首頁輪播照片",
       };
     },
   },

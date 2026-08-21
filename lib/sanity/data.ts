@@ -221,10 +221,7 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
   const slides = carousel?.carouselItems ?? [];
 
   const mappedSlides = slides.flatMap((slide) => {
-    const selectedImage = slide.project?.galleryImages?.find(
-      (item) => item._key === slide.selectedImageKey,
-    );
-    const imageUrl = optimizedImageUrl(selectedImage, { width: 2200 });
+    const imageUrl = optimizedImageUrl(slide.image, { width: 2200 });
 
     if (!imageUrl) {
       return [];
@@ -233,8 +230,7 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
     return {
       id: slide._key ?? imageUrl,
       src: imageUrl,
-      title: slide.caption ?? slide.project?.title,
-      slug: slide.project?.slug,
+      title: slide.caption ?? slide.alt,
       crop: slide.crop,
     };
   });
