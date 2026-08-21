@@ -14,34 +14,15 @@ export const carouselItemType = defineType({
       },
       validation: (Rule) => Rule.required(),
     }),
-    defineField({
-      name: "alt",
-      title: "圖片替代文字",
-      type: "string",
-    }),
-    defineField({
-      name: "caption",
-      title: "輪播說明",
-      type: "string",
-    }),
-    defineField({
-      name: "isVisible",
-      title: "顯示在首頁",
-      type: "boolean",
-      initialValue: true,
-    }),
   ],
   preview: {
     select: {
-      caption: "caption",
-      alt: "alt",
       image: "image",
-      isVisible: "isVisible",
     },
-    prepare({ caption, alt, image, isVisible }) {
+    prepare({ image }) {
       return {
-        title: caption || alt || "首頁輪播照片",
-        subtitle: isVisible ? "顯示在首頁" : "已隱藏",
+        title: "首頁輪播照片",
+        subtitle: "可使用圖片欄位內建裁切",
         media: image,
       };
     },

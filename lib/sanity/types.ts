@@ -90,11 +90,6 @@ export type CarouselCrop = {
 export type SanityCarouselItem = {
   _key?: string;
   image?: SanityImageSource;
-  alt?: string;
-  caption?: string;
-  order?: number;
-  isVisible?: boolean;
-  crop?: CarouselCrop;
 };
 
 export type HomeSlide = {

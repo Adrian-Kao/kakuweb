@@ -54,13 +54,9 @@ export const homepageCarouselQuery = /* groq */ `
   *[_type == "homepageCarousel" && _id == "homepageCarousel"][0] {
     _id,
     title,
-    carouselItems[isVisible != false] {
+    carouselItems[] {
       _key,
-      image{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}},
-      alt,
-      caption,
-      isVisible,
-      crop
+      image{..., asset->{_id, url, metadata{dimensions{width, height, aspectRatio}}}}
     }
   }
 `;

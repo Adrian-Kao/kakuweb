@@ -230,8 +230,6 @@ export async function getHomeSlides(): Promise<HomeSlide[]> {
     return {
       id: slide._key ?? imageUrl,
       src: imageUrl,
-      title: slide.caption ?? slide.alt,
-      crop: slide.crop,
     };
   });
 
