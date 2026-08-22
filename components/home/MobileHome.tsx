@@ -6,7 +6,7 @@ import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
 // Frontend typography/color settings: mobile Home text, accent, and background classes are in className strings below.
 
-const homeTitleLines = ["野次馬", "工作室"];
+const homeTitleLines = ["野次馬工作室", ""];
 type MobileHomeProps = {
   slides?: HomeSlide[];
 };

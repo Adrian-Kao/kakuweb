@@ -79,7 +79,7 @@ export default function MobileTopBar({ transitionTo }: MobileTopBarProps) {
         <div>
           <div className="flex items-start justify-between gap-5">
             <p className="max-w-[12rem] text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
-              KAKU PHOTOGRAPHY
+              野次馬工作室
             </p>
             <button
               type="button"

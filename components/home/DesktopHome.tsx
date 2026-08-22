@@ -11,7 +11,7 @@ type DesktopHomeProps = {
 };
 
 // Each item is rendered on its own line. Move text between items to change the line break.
-const homeTitleLines = ["野次馬", "工作室"];
+const homeTitleLines = ["野次馬工作室", ""];
 
 export default function DesktopHome({ slides }: DesktopHomeProps) {
   const [isMenuHovered, setIsMenuHovered] = useState(false);

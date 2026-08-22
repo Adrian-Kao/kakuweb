@@ -51,17 +51,13 @@ export default function MobileAbout() {
     <MobileShell>
       <div className="relative min-h-screen bg-[#050505] px-6 py-8 text-[#f3eee6]">
         <div className="relative z-10">
-          <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
-            KAKU PHOTOGRAPHY
-          </p>
+
           <h1 className="mt-5 text-5xl font-light uppercase tracking-[0.08em]">
             About
           </h1>
 
           <section className="mt-10">
-            <p className="text-xs uppercase tracking-[0.36em] text-[#c9a46a]">
-              Behind the Lens
-            </p>
+
             <h2 className="mt-6 text-4xl font-light leading-tight">
               The person behind the light.
             </h2>

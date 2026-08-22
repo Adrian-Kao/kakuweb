@@ -82,9 +82,7 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
     <MobileShell>
       <div className="relative min-h-screen bg-[#050505] px-6 py-8 text-[#f3eee6]">
         <div className="relative z-10">
-          <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
-            KAKU PHOTOGRAPHY
-          </p>
+
           <h1 className="mt-5 text-5xl font-light uppercase tracking-[0.08em]">
             Works
           </h1>
