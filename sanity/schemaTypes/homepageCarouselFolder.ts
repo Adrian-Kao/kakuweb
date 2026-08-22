@@ -12,7 +12,6 @@ export const carouselItemType = defineType({
       options: {
         hotspot: true,
       },
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "alt",
@@ -92,6 +91,25 @@ export const homepageCarouselType = defineType({
       options: {
         sortable: true,
       },
+      validation: (Rule) =>
+        Rule.custom((items) => {
+          if (!Array.isArray(items)) {
+            return "首頁輪播至少需要一張照片";
+          }
+
+          const hasUploadedImage = items.some(
+            (item) =>
+              item &&
+              typeof item === "object" &&
+              "image" in item &&
+              item.image &&
+              typeof item.image === "object" &&
+              "asset" in item.image &&
+              item.image.asset,
+          );
+
+          return hasUploadedImage || "首頁輪播至少需要一張照片";
+        }),
     }),
   ],
   preview: {

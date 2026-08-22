@@ -51,6 +51,25 @@ export default function AboutMePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[url('/about-portrait.png')] bg-cover bg-[center_right_18%] opacity-45 transition-[filter,opacity] duration-[900ms] ease-out"
+          style={{
+            filter: isFocused
+              ? "grayscale(1) brightness(0.55) contrast(1.18)"
+              : "grayscale(1) brightness(0.43) contrast(1.12)",
+          }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.96)_0%,rgba(5,5,5,0.72)_34%,rgba(5,5,5,0.34)_72%,rgba(5,5,5,0.2)_100%)]" />
+        <div
+          className={[
+            "absolute right-[16%] top-[28%] h-64 w-64 rounded-full bg-[rgba(243,238,230,0.08)] blur-3xl transition-opacity duration-[900ms]",
+            isFocused ? "opacity-100" : "opacity-35",
+          ].join(" ")}
+        />
+        <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.38)_0_1px,transparent_1px)] [background-size:10px_10px]" />
+      </div>
+
       <main className="relative z-10 grid min-h-screen grid-cols-1 gap-12 px-7 py-8 sm:px-12 lg:grid-cols-[22%_78%] lg:px-20 lg:py-12">
         <aside className="flex min-h-[34vh] flex-col justify-between lg:min-h-0">
           <div>
@@ -139,31 +158,12 @@ export default function AboutMePage() {
         </aside>
 
         <section
-          className="relative min-h-[72vh] overflow-hidden border border-white/10 bg-[#050505] lg:min-h-0"
+          className="relative min-h-[72vh] overflow-hidden lg:min-h-0"
           onMouseEnter={() => setIsFocused(true)}
           onMouseLeave={() => setIsFocused(false)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         >
-          <div className="absolute inset-0 overflow-hidden">
-            <div
-              className="absolute inset-0 bg-[url('/about-portrait.png')] bg-cover bg-[center_right_18%] opacity-45 transition-[filter,opacity] duration-[900ms] ease-out"
-              style={{
-                filter: isFocused
-                  ? "grayscale(1) brightness(0.55) contrast(1.18)"
-                  : "grayscale(1) brightness(0.43) contrast(1.12)",
-              }}
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.95)_0%,rgba(5,5,5,0.6)_48%,rgba(5,5,5,0.25)_100%)]" />
-            <div
-              className={[
-                "absolute right-[16%] top-[28%] h-64 w-64 rounded-full bg-[rgba(243,238,230,0.08)] blur-3xl transition-opacity duration-[900ms]",
-                isFocused ? "opacity-100" : "opacity-35",
-              ].join(" ")}
-            />
-            <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.38)_0_1px,transparent_1px)] [background-size:10px_10px]" />
-          </div>
- 
           <div className="relative z-10 flex min-h-full items-center px-8 py-14 sm:px-12 lg:px-16">
             <div className="max-w-[34rem]">
               
@@ -226,6 +226,5 @@ export default function AboutMePage() {
     </div>
   );
 }
-
 
 

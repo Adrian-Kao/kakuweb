@@ -5,6 +5,8 @@ import MobileShell from "../mobile/MobileShell";
 import HomeSlideshowBackground from "./HomeSlideshowBackground";
 
 // Frontend typography/color settings: mobile Home text, accent, and background classes are in className strings below.
+
+const homeTitleLines = ["野次馬", "工作室"];
 type MobileHomeProps = {
   slides?: HomeSlide[];
 };
@@ -16,15 +18,15 @@ export default function MobileHome({ slides }: MobileHomeProps) {
         <HomeSlideshowBackground slides={slides} />
 
         <section className="relative z-10">
-          <p className="text-xs uppercase tracking-[0.42em] text-[#c9a46a]">
-            KAKU PHOTOGRAPHY
-          </p>
-          <h1 className="mt-5 max-w-[16rem] text-5xl font-light leading-[0.95] text-[#f3eee6]">
-            KAKU FOTO
-          </h1>
-          <p className="mt-7 max-w-xs text-sm leading-7 text-[rgba(243,238,230,0.62)]">
-            Photographer / Visual Storyteller
-          </p>
+         
+          <h1 className="font-sans text-5xl font-black leading-[0.95] tracking-normal text-[#f4f0e8] sm:text-6xl">
+              {homeTitleLines.map((line) => (
+                <span key={line} className="block whitespace-nowrap">
+                  {line}
+                </span>
+              ))}
+            </h1>
+         
         </section>
       </div>
     </MobileShell>
