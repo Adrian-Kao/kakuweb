@@ -31,13 +31,14 @@ export default function GalleryFilters({
   }, [activeCategory, activeSeriesSlug, categories, onCategoryChange]);
 
   return (
-    <aside className="relative z-10 flex min-h-[38vh] flex-col lg:min-h-0">
+    <aside className="relative z-10 flex min-h-[38vh] flex-col lg:-translate-x-4 lg:min-h-0">
+      
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.42em] text-[#c9a46a]">
-          KAKU PHOTOGRAPHY
+          野次馬工作室
         </p>
 
-        <h1 className="mt-14 text-5xl font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6] sm:text-6xl">
+        <h1 className="mt-14 text-2xl font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6] sm:text-6xl">
           Works
         </h1>
       </div>

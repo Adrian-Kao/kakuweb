@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 
 // Frontend typography/color settings: mobile top bar palette, menu text, and accent classes are in className strings below.
 const menuItems = [
@@ -9,20 +9,29 @@ const menuItems = [
   { href: "/about", label: " \u2014 ABOUT" },
   { href: "/gallery", label: "\u2014 WORKS" },
   { href: "/portfolio", label: " \u2014 PORTFOLIO" },
+  { href: "/contact", label: " \u2014 CONTACT" },
 ];
 
 const pageTitles: Record<string, string> = {
-  "/": "KAKU PHOTOGRAPHY",
+  "/": "野次馬工作室",
   "/about": "ABOUT",
   "/portfolio": "PORTFOLIO",
   "/gallery": "WORKS",
+  "/contact": "CONTACT",
 };
 
 type MobileTopBarProps = {
   transitionTo: (href: string) => void;
 };
 
+const subscribeToClient = () => () => {};
+
 export default function MobileTopBar({ transitionTo }: MobileTopBarProps) {
+  const isMounted = useSyncExternalStore(
+    subscribeToClient,
+    () => true,
+    () => false,
+  );
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -38,6 +47,10 @@ export default function MobileTopBar({ transitionTo }: MobileTopBarProps) {
     setIsOpen(false);
     transitionTo(href);
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -118,9 +131,7 @@ export default function MobileTopBar({ transitionTo }: MobileTopBarProps) {
           </div>
         </div>
 
-        <p className="max-w-[14rem] text-sm leading-6 text-[rgba(243,238,230,0.62)]">
-          Light reveals. Shadow remembers.
-        </p>
+
       </nav>
     </>
   );

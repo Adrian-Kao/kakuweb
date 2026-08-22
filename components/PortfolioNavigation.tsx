@@ -9,6 +9,7 @@ const navigationItems = [
   { href: "/about", label: " \u2014 ABOUT" },
   { href: "/gallery", label: " \u2014 WORKS" },
   { href: "/portfolio", label: " \u2014 PORTFOLIO" },
+  { href: "/contact", label: " \u2014 CONTACT" },
 ];
 
 type PortfolioNavigationProps = {
@@ -24,9 +25,10 @@ export default function PortfolioNavigation({
   return (
     <nav
       aria-label="Portfolio sections"
-      className={[className || "mt-10", "flex max-w-xs flex-col gap-2"].join(
-        " ",
-      )}
+      className={[
+        className || "mt-10",
+        "scrollbar-hidden flex max-h-[42vh] max-w-xs flex-col overflow-y-auto overscroll-contain pr-1",
+      ].join(" ")}
     >
       {navigationItems.map((item) => {
         const isActive =
@@ -41,7 +43,7 @@ export default function PortfolioNavigation({
             aria-pressed={isActive}
             onClick={() => transitionTo(item.href)}
             className={[
-              "group flex w-full items-center justify-between border-b py-3 text-left",
+              "group flex min-h-12 w-full shrink-0 items-center justify-between border-b py-2 text-left",
               "text-sm uppercase tracking-[0.22em] transition-colors duration-300",
               "focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-[#d8b16f]",
               isActive

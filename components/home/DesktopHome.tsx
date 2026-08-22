@@ -22,7 +22,7 @@ export default function DesktopHome({ slides }: DesktopHomeProps) {
 
       <main className="relative z-10 flex h-screen overflow-hidden px-7 py-8 sm:px-12 lg:px-20 lg:py-0">
         <section
-          className="flex min-h-[42vh] flex-col justify-between py-8 lg:min-h-0 lg:w-[22%] lg:py-14"
+          className="flex min-h-[42vh] flex-col justify-between py-8 lg:min-h-0 lg:w-[11%] lg:py-14"
           onMouseEnter={() => setIsMenuHovered(true)}
           onMouseLeave={() => setIsMenuHovered(false)}
           onFocus={() => setIsMenuHovered(true)}
@@ -36,7 +36,7 @@ export default function DesktopHome({ slides }: DesktopHomeProps) {
           >
            
 
-            <h1 className="font-sans text-5xl font-black leading-[0.95] tracking-normal text-[#f4f0e8] sm:text-6xl">
+            <h1 className="font-source-han text-5xl font-black leading-[0.95] tracking-normal text-[#f4f0e8] sm:text-6xl">
               {homeTitleLines.map((line) => (
                 <span key={line} className="block whitespace-nowrap">
                   {line}

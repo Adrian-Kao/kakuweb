@@ -35,7 +35,7 @@ export default function PortfolioGallery({ photos }: PortfolioGalleryProps) {
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
-      <main className="relative z-10 grid h-screen grid-cols-[22%_78%] gap-14 overflow-hidden px-20 py-12">
+      <main className="relative z-10 grid h-screen grid-cols-[11%_minmax(0,1fr)] gap-14 overflow-hidden px-20 py-12">
         <aside className="flex h-[calc(100vh-6rem)] flex-col justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-[#c9a46a]">

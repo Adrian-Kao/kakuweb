@@ -19,7 +19,7 @@ export default function MobileHome({ slides }: MobileHomeProps) {
 
         <section className="relative z-10">
          
-          <h1 className="font-sans text-5xl font-black leading-[0.95] tracking-normal text-[#f4f0e8] sm:text-6xl">
+          <h1 className="font-source-han text-5xl font-black leading-[0.95] tracking-normal text-[#f4f0e8] sm:text-6xl">
               {homeTitleLines.map((line) => (
                 <span key={line} className="block whitespace-nowrap">
                   {line}

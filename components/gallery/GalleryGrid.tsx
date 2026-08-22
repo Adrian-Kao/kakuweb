@@ -108,7 +108,7 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#050505] text-[#f3eee6]">
-      <main className="relative z-10 grid h-screen grid-cols-1 gap-14 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[22%_78%] lg:px-20 lg:py-12">
+      <main className="relative z-10 grid h-screen grid-cols-1 gap-14 overflow-hidden px-7 py-8 sm:px-12 lg:grid-cols-[11%_minmax(0,1fr)] lg:px-20 lg:py-12">
         <div className="flex h-[calc(100vh-4rem)] flex-col justify-between lg:h-[calc(100vh-6rem)]">
           <GalleryFilters
             activeCategory={effectiveCategory}
