@@ -5,10 +5,10 @@ import { useMemo, useState } from "react";
 
 // Frontend typography/color settings: mobile top bar palette, menu text, and accent classes are in className strings below.
 const menuItems = [
-  { href: "/", label: "01 \u2014 HOME" },
-  { href: "/about", label: "02 \u2014 ABOUT" },
-  { href: "/gallery", label: "03 \u2014 WORKS" },
-  { href: "/portfolio", label: "04 \u2014 PORTFOLIO" },
+  { href: "/", label: " \u2014 HOME" },
+  { href: "/about", label: " \u2014 ABOUT" },
+  { href: "/gallery", label: "\u2014 WORKS" },
+  { href: "/portfolio", label: " \u2014 PORTFOLIO" },
 ];
 
 const pageTitles: Record<string, string> = {
