@@ -23,7 +23,7 @@ export default function PortfolioGallery({ photos }: PortfolioGalleryProps) {
       <MobileShell>
         <main className="min-h-screen bg-[#050505] px-6 py-8 text-[#f3eee6]">
 
-          <h1 className="mt-5 text-5xl font-light uppercase tracking-[0.08em]">
+          <h1 className="mt-5 whitespace-nowrap text-[clamp(2.25rem,11vw,3rem)] font-light uppercase tracking-[0.08em]">
             Portfolio
           </h1>
 
@@ -41,7 +41,7 @@ export default function PortfolioGallery({ photos }: PortfolioGalleryProps) {
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-[#c9a46a]">
               野次馬工作室
             </p>
-            <h1 className="mt-14 max-w-full break-words text-[clamp(2rem,2.4vw,3rem)] font-light uppercase leading-none tracking-[0.08em]">
+            <h1 className="mt-14 max-w-full whitespace-nowrap text-[clamp(1.7rem,1.8vw,2.35rem)] font-light uppercase leading-none tracking-[0.08em]">
               Portfolio
             </h1>
           </div>
