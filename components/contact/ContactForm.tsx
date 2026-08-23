@@ -91,7 +91,7 @@ export default function ContactForm({ className = "" }: ContactFormProps) {
         disabled={status === "sending"}
         className="mt-6 border-b border-[#c9a46a] pb-2 text-[0.68rem] uppercase tracking-[0.24em] text-[#c9a46a] transition hover:text-[#f3eee6] disabled:cursor-wait disabled:opacity-50"
       >
-        {status === "sending" ? "寄送中..." : "信件已傳送"}
+        {status === "sending" ? "寄送中..." : "send"}
       </button>
 
       {statusMessage ? (
