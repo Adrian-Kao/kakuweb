@@ -29,13 +29,13 @@ export default function AboutMePage() {
         <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.38)_0_1px,transparent_1px)] [background-size:10px_10px]" />
       </div>
 
-      <main className="relative z-10 grid min-h-screen grid-cols-1 gap-12 px-7 py-8 sm:px-12 lg:grid-cols-[11%_minmax(0,1fr)] lg:px-20 lg:py-12">
+      <main className="relative z-10 grid min-h-screen grid-cols-1 gap-12 px-7 py-8 sm:px-12 lg:grid-cols-[clamp(12rem,11vw,14rem)_minmax(0,1fr)] lg:px-20 lg:py-12">
         <aside className="flex min-h-[34vh] flex-col justify-between lg:min-h-0">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-[#c9a46a]">
               野次馬工作室
             </p>
-            <p className="mt-14 text-5xl font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6] sm:text-6xl">
+            <p className="mt-14 max-w-full text-[clamp(2rem,2.4vw,3rem)] font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6]">
               About
             </p>
           </div>

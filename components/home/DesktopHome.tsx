@@ -22,7 +22,7 @@ export default function DesktopHome({ slides }: DesktopHomeProps) {
 
       <main className="relative z-10 flex h-screen overflow-hidden px-7 py-8 sm:px-12 lg:px-20 lg:py-0">
         <section
-          className="flex min-h-[42vh] flex-col justify-between py-8 lg:min-h-0 lg:w-[11%] lg:py-14"
+          className="flex min-h-[42vh] flex-col justify-between py-8 lg:min-h-0 lg:w-[clamp(12rem,11vw,14rem)] lg:shrink-0 lg:py-14"
           onMouseEnter={() => setIsMenuHovered(true)}
           onMouseLeave={() => setIsMenuHovered(false)}
           onFocus={() => setIsMenuHovered(true)}

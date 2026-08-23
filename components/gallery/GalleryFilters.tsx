@@ -38,7 +38,7 @@ export default function GalleryFilters({
           野次馬工作室
         </p>
 
-        <h1 className="mt-14 text-2xl font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6] sm:text-6xl">
+        <h1 className="mt-14 max-w-full text-[clamp(2rem,2.4vw,3rem)] font-light uppercase leading-none tracking-[0.08em] text-[#f3eee6]">
           Works
         </h1>
       </div>
