@@ -67,7 +67,7 @@ export default function ContactForm({ className = "" }: ContactFormProps) {
         required
         value={sender}
         onChange={(event) => setSender(event.target.value)}
-        placeholder="your@email.com"
+        placeholder="example@gmail.com"
         className="mt-2 w-full border border-white/10 bg-[#050505]/65 px-4 py-3 text-sm text-[#f3eee6] outline-none transition placeholder:text-[rgba(243,238,230,0.36)] focus:border-[#c9a46a]/70"
       />
 
@@ -82,7 +82,7 @@ export default function ContactForm({ className = "" }: ContactFormProps) {
         required
         value={message}
         onChange={(event) => setMessage(event.target.value)}
-        placeholder="..."
+        placeholder="撰寫您的訊息..."
         className="mt-2 h-44 w-full resize-none border border-white/10 bg-[#050505]/65 px-4 py-3 text-sm leading-6 text-[#f3eee6] outline-none transition placeholder:text-[rgba(243,238,230,0.36)] focus:border-[#c9a46a]/70"
       />
 

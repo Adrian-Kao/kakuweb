@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { GalleryPhoto } from "../../data/gallery";
+import type { Series } from "../../data/gallery";
 import type { GalleryData } from "../../lib/sanity/data";
 import MobileShell from "../mobile/MobileShell";
 
@@ -36,6 +37,14 @@ function getCategoryScope(categoryId: string | null, categories: GalleryData["ca
 
 function getCategorySlug(categoryId: string) {
   return categoryId.replace(/^category-/, "");
+}
+
+function getSeriesCoverPhoto(series: Series, photos: GalleryPhoto[]) {
+  return (
+    photos.find((photo) => photo.id === series.coverPhotoId) ??
+    photos.find((photo) => photo.seriesId === series.id) ??
+    null
+  );
 }
 
 export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryProps) {
@@ -133,38 +142,81 @@ export default function MobileGallery({ forcedSeriesSlug, data }: MobileGalleryP
             </button>
           ) : null}
 
-          <div className="mt-4 space-y-16">
-            {visibleSeries.map((series) => {
-              const seriesPhotos = photos.filter(
-                (photo) => photo.seriesId === series.id,
-              );
-
-              return (
-                <section
-                  key={series.id}
-                  id={`series-${series.slug}`}
-                  className="scroll-mt-28 pt-8"
-                >
-                  <h2 className="text-3xl font-light uppercase tracking-[0.08em]">
-                    {series.title}
-                  </h2>
-
-                  <div className="mt-8 space-y-9">
-                    {seriesPhotos.map((photo) => (
-                      <MobileGalleryPhoto
-                        key={photo.id}
-                        photo={photo}
-                      />
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
+          <div className="mt-8">
+            {activeSeries ? (
+              <MobileSeriesPhotos
+                photos={photos.filter((photo) => photo.seriesId === activeSeries.id)}
+                seriesTitle={activeSeries.title}
+              />
+            ) : (
+              <MobileSeriesIndex photos={photos} series={visibleSeries} />
+            )}
           </div>
         </div>
 
       </div>
     </MobileShell>
+  );
+}
+
+function MobileSeriesIndex({
+  photos,
+  series,
+}: {
+  photos: GalleryPhoto[];
+  series: Series[];
+}) {
+  const router = useRouter();
+
+  return (
+    <div className="space-y-12">
+      {series.map((item) => {
+        const coverPhoto = getSeriesCoverPhoto(item, photos);
+
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => router.push(`/gallery/${item.slug}`)}
+            className="group block w-full text-left"
+          >
+            <img
+              src={coverPhoto?.imageUrl ?? "/1.jpg"}
+              alt={coverPhoto?.alt ?? item.title}
+              className="block h-auto w-full transition duration-500 group-hover:brightness-110"
+              loading="lazy"
+            />
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-[#f3eee6]">
+                {item.title}
+              </p>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function MobileSeriesPhotos({
+  photos,
+  seriesTitle,
+}: {
+  photos: GalleryPhoto[];
+  seriesTitle: string;
+}) {
+  return (
+    <section className="scroll-mt-28">
+      <h2 className="text-3xl font-light uppercase tracking-[0.08em]">
+        {seriesTitle}
+      </h2>
+
+      <div className="mt-8 space-y-9">
+        {photos.map((photo) => (
+          <MobileGalleryPhoto key={photo.id} photo={photo} />
+        ))}
+      </div>
+    </section>
   );
 }
 
