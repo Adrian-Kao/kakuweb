@@ -233,9 +233,6 @@ function MobileGalleryPhoto({
         className="block h-auto w-full"
         loading="lazy"
       />
-      <div className="mt-4">
-        <p className="text-xs uppercase tracking-[0.22em]">{photo.title}</p>
-      </div>
     </article>
   );
 }

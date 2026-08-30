@@ -155,11 +155,6 @@ export default function GalleryGrid({ forcedSeriesSlug, data }: GalleryGridProps
                     className="block h-auto w-full transition duration-500 group-hover:brightness-110"
                     loading="lazy"
                   />
-                  <div className="mt-4">
-                    <p className="text-xs uppercase tracking-[0.22em] text-[#f3eee6]">
-                      {photo.title}
-                    </p>
-                  </div>
                 </button>
               ))}
             </div>
